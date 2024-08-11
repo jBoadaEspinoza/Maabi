@@ -3,28 +3,30 @@ import DefaultAuthCard from '@/components/Auths/DefaultAuthCard.vue'
 import InputGroup from '@/components/Auths/InputGroup.vue'
 import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import LoginLayout from '@/layouts/LoginLayout.vue'
-import AuthService from   '@/services/AuthService.ts'
+import router from '@/router'
+import AuthService from '@/services/AuthService'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth/authStore'
 
 const pageTitle = ref('Sign In')
 
-const email = ref('')
-const password = ref('')
-
+const email = ref('perutripsadventures@gmail.com')
+const password = ref('12345678') 
+const authStore = useAuthStore() // Instancia la store
 // Función para manejar el envío del formulario
-const login = async (event: Event) => {
-  event.preventDefault()
-  
-  try {
-    const data = await AuthService.login(email.value, password.value)
-    console.log('Login successful:', data)
-    router.push('/')  // Redirige a la página principal
-  } catch (error) {
-    console.error('Login failed:', error)
-    // Aquí puedes manejar el error, por ejemplo, mostrar un mensaje al usuario
+
+const login = async () => {
+  await authStore.login(email.value, password.value);
+
+  if (authStore.isAuthenticated) {
+    router.push('/'); // Redirige si el login es exitoso
+  } else {
+    console.error(authStore.error); // Maneja errores de autenticación
   }
-}
+};
+
+
 </script>
 
 <template>
@@ -32,8 +34,8 @@ const login = async (event: Event) => {
     <!-- Breadcrumb Start -->
     <!-- Breadcrumb End -->
 
-    <DefaultAuthCard subtitle="" title="Sign In to TailAdmin">
-      <form @submit="login">
+    <DefaultAuthCard subtitle="" title="Ingresar">
+      <form @submit.prevent="login">
         <InputGroup v-model="email" label="Email" type="email" placeholder="Enter your email">
           <svg
             class="fill-current"
@@ -52,7 +54,12 @@ const login = async (event: Event) => {
           </svg>
         </InputGroup>
 
-        <InputGroup v-model="password" label="Password" type="password" placeholder="6+ Characters, 1 Capital letter">
+        <InputGroup
+          v-model="password"
+          label="Password"
+          type="password"
+          placeholder="6+ Characters, 1 Capital letter"
+        >
           <svg
             class="fill-current"
             width="22"
@@ -82,7 +89,6 @@ const login = async (event: Event) => {
           />
         </div>
 
-   
         <div class="mt-6 text-center">
           <p class="font-medium">
             Don’t have any account?

@@ -1,13 +1,36 @@
 <script setup lang="ts">
+import router from '@/router';
+import { useAuthStore } from '@/stores/auth/authStore';
 import { onClickOutside } from '@vueuse/core'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const target = ref(null)
 const dropdownOpen = ref(false)
+const authStore = useAuthStore() 
 
 onClickOutside(target, () => {
   dropdownOpen.value = false
 })
+
+// Función para manejar el cierre de sesión
+const logout = async () => {
+  await authStore.logout() // Llama al método de cierre de sesión en la store
+
+  // Redirige a la página de inicio de sesión o donde desees
+  router.push('/auth/signin')
+}
+
+// Cargar el perfil del usuario al montar el componente
+onMounted(async () => {
+  if (authStore.isAuthenticated) {
+    try {
+      await authStore.fetchProfile();
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+    }
+  }
+});
+
 </script>
 
 <template>
@@ -18,8 +41,12 @@ onClickOutside(target, () => {
       @click.prevent="dropdownOpen = !dropdownOpen"
     >
       <span class="hidden text-right lg:block">
-        <span class="block text-sm font-medium text-black dark:text-white">Thomas Anree</span>
-        <span class="block text-xs font-medium">UX Designer</span>
+        <span class="block text-sm font-medium text-black dark:text-white">
+          {{ authStore.user ? authStore.user.nickname : 'Loading...' }}
+        </span>
+        <span class="block text-xs font-medium">
+          {{ authStore.user ? authStore.user.business.trade_name : 'Loading...' }}
+        </span>
       </span>
 
       <span class="h-12 w-12 rounded-full">
@@ -124,7 +151,8 @@ onClickOutside(target, () => {
       </ul>
       <button
         class="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
-      >
+        @click="logout"
+        >
         <svg
           class="fill-current"
           width="22"

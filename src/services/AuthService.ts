@@ -1,20 +1,26 @@
-// src/services/authService.ts
-import axios from 'axios';
+// src/services/AuthService.ts
+import axiosInstance from './axiosInstance';
 
 class AuthService {
-  private apiUrl = 'https://api.maabi.online/v1.0/auth/login';
+  static async login(username: string, password: string) {
+    try {
+      const response = await axiosInstance.post('/auth/login', { username, password });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 
-  async login(username: string, password: string) {
-    const response = await axios.post(this.apiUrl, {
-      username,
-      password
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    return response.data;
+  static async fetchProfile(token: string) {
+    try {
+      const response = await axiosInstance.get('/users/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 }
 
-export default new AuthService();
+export default AuthService;

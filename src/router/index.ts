@@ -12,6 +12,7 @@ import ProfileView from '@/views/ProfileView.vue'
 import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
+import { useAuthStore } from '@/stores/auth/authStore'
 
 const routes = [
   {
@@ -19,6 +20,7 @@ const routes = [
     name: 'eCommerce',
     component: ECommerceView,
     meta: {
+      requiresAuth: true,
       title: 'eCommerce Dashboard'
     }
   },
@@ -120,9 +122,22 @@ const router = createRouter({
   }
 })
 
+
+
+
 router.beforeEach((to, from, next) => {
   document.title = `Vue.js ${to.meta.title} | TailAdmin - Vue.js Tailwind CSS Dashboard Template`
   next()
 })
+// Guard para manejar la autenticación
+router.beforeEach((to, from, next) => {
+  const authStore = useAuthStore();
 
+  // Verifica si la ruta requiere autenticación
+  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
+    next('/auth/signin'); // Redirige a la página de inicio si no está autenticado
+  } else {
+    next(); // Permite el acceso si está autenticado o si la ruta no requiere autenticación
+  }
+})
 export default router
