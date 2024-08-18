@@ -5,8 +5,11 @@ import TableOne from '@/components/Tables/TableOne.vue'
 import TableTwo from '@/components/Tables/TableTwo.vue'
 import TableThree from '@/components/Tables/TableThree.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import ActividadesList from '@/components/Actividades/ActividadesList.vue'
 
 const pageTitle = ref('Tables')
+
+
 </script>
 
 <template>
@@ -16,9 +19,10 @@ const pageTitle = ref('Tables')
     <!-- Breadcrumb End -->
 
     <div class="flex flex-col gap-10">
-      <TableOne />
-      <TableTwo />
+  
+      <ActividadesList />
       <TableThree />
+
     </div>
   </DefaultLayout>
 </template>

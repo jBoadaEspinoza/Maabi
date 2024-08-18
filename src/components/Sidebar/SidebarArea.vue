@@ -114,7 +114,7 @@ const menuGroups = ref([
                     fill="white"
                   />
                 </svg>`,
-        label: 'Forms',
+        label: 'Actividades',
         route: '#',
         children: [
           { label: 'Form Elements', route: '/forms/form-elements' },

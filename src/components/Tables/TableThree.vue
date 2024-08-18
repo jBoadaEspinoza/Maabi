@@ -1,5 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import ActividadesService from '@/services/actividades/ActividadesService';
+import { useAuthStore } from '@/stores/auth/authStore';
+import type { Actividad } from '@/types/Actividad';
+import { onMounted, ref } from 'vue'
 
 const packages = ref([
   { name: 'Free Package', price: '$0.00', invoiceDate: 'Jan 13, 2025', status: 'Paid' },
@@ -7,6 +10,24 @@ const packages = ref([
   { name: 'Business Package', price: '$99.00', invoiceDate: 'Jan 13, 2025', status: 'Unpaid' },
   { name: 'Standard Package', price: '$59.00', invoiceDate: 'Jan 13, 2025', status: 'Pending' }
 ])
+const activities = ref<Actividad[]>([]);
+const authStore = useAuthStore();
+
+const fetchActivities = async () => {
+  try {
+    const response = await ActividadesService.getAllActivities(authStore.token);
+    console.log(response);
+    activities.value = response;
+  } catch (error) {
+    console.error('Failed to fetch activities', error);
+  }
+}
+
+onMounted(() => {
+  fetchActivities();
+});
+
+
 </script>
 
 <template>

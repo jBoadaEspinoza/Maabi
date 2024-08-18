@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import router from '@/router';
-import { useAuthStore } from '@/stores/auth/authStore';
+import router from '@/router'
+import { useAuthStore } from '@/stores/auth/authStore'
 import { onClickOutside } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 
 const target = ref(null)
 const dropdownOpen = ref(false)
-const authStore = useAuthStore() 
+const authStore = useAuthStore()
 
 onClickOutside(target, () => {
   dropdownOpen.value = false
@@ -24,13 +24,12 @@ const logout = async () => {
 onMounted(async () => {
   if (authStore.isAuthenticated) {
     try {
-      await authStore.fetchProfile();
+      await authStore.fetchProfile()
     } catch (error) {
-      console.error('Error fetching profile:', error);
+      console.error('Error fetching profile:', error)
     }
   }
-});
-
+})
 </script>
 
 <template>
@@ -49,8 +48,29 @@ onMounted(async () => {
         </span>
       </span>
 
-      <span class="h-12 w-12 rounded-full">
-        <img src="@/assets/images/user/user-01.png" alt="User" />
+      <span
+        class="h-12 w-12 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center "
+      >
+        <template v-if="authStore.user && authStore.user.business.url_logo">
+          <img
+            :src="authStore.user.business.url_logo"
+            alt="User"
+            class="h-full w-full object-cover"
+          />
+        </template>
+        <template v-else>
+        
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-12 w-12 text-gray-500"
+            viewBox="0 0 256 256"
+          >
+            <path
+              fill="#999999"
+              d="M128 24a104 104 0 1 0 104 104A104.11 104.11 0 0 0 128 24M74.08 197.5a64 64 0 0 1 107.84 0a87.83 87.83 0 0 1-107.84 0M96 120a32 32 0 1 1 32 32a32 32 0 0 1-32-32m97.76 66.41a79.66 79.66 0 0 0-36.06-28.75a48 48 0 1 0-59.4 0a79.66 79.66 0 0 0-36.06 28.75a88 88 0 1 1 131.52 0"
+            />
+          </svg>
+        </template>
       </span>
 
       <svg
@@ -152,7 +172,7 @@ onMounted(async () => {
       <button
         class="flex items-center gap-3.5 py-4 px-6 text-sm font-medium duration-300 ease-in-out hover:text-primary lg:text-base"
         @click="logout"
-        >
+      >
         <svg
           class="fill-current"
           width="22"
