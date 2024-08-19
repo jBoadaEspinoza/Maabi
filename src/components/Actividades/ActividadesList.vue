@@ -3,13 +3,11 @@ import ActividadesService from '@/services/actividades/ActividadesService';
 import { useAuthStore } from '@/stores/auth/authStore';
 import type { Actividad } from '@/types/Actividad';
 import { onMounted, ref } from 'vue'
+import CrearActividad from './CrearActividad.vue';
+// Modal control
+const isModalOpen = ref(false); // This will control the modal visibility
+const actividadData = ref<Actividad | null>(null); // This will hold the activity data for the modal
 
-const packages = ref([
-  { name: 'Free Package', price: '$0.00', invoiceDate: 'Jan 13, 2025', status: 'Paid' },
-  { name: 'Standard Package', price: '$59.00', invoiceDate: 'Jan 13, 2025', status: 'Paid' },
-  { name: 'Business Package', price: '$99.00', invoiceDate: 'Jan 13, 2025', status: 'Unpaid' },
-  { name: 'Standard Package', price: '$59.00', invoiceDate: 'Jan 13, 2025', status: 'Pending' }
-])
 const activities = ref<Actividad[]>([]);
 const authStore = useAuthStore();
 
@@ -26,7 +24,28 @@ const fetchActivities = async () => {
 onMounted(() => {
   fetchActivities();
 });
+const openModal = () => {
+  isModalOpen.value = true;
+  // Set actividadData with default or existing activity details if needed
+  actividadData.value = {
+    object: 'Activity',
+    id: '',
+    name_es: '',
+    name_en: '',
+    description_es: '',
+    description_en: '',
+    created_utc: Date.now(),
+    traditional: true,
+    place_id: '',
+    type_id: '',
+    active: true,
+    interests: [],
+  };
+};
 
+const closeModal = () => {
+  isModalOpen.value = false;
+};
 
 </script>
 
@@ -40,9 +59,13 @@ onMounted(() => {
       </h4>
       <button
         class="inline-flex items-center justify-center rounded-md bg-primary py-2 px-4 text-sm font-medium text-white hover:bg-opacity-90"
-      >
+        @click="openModal"
+        >
         Crear Actividad
       </button>
+
+
+      <CrearActividad :show="isModalOpen" :actividad="actividadData" @close="closeModal" />
     </div>
 
       <div class="max-w-full overflow-x-auto">
@@ -57,6 +80,8 @@ onMounted(() => {
               </th>
               <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">Type</th>
               <th class="py-4 px-4 font-medium text-black dark:text-white">Status</th>
+              <th class="py-4 px-4 font-medium text-black dark:text-white">Actions</th>
+
             </tr>
           </thead>
           <tbody>
@@ -79,6 +104,23 @@ onMounted(() => {
                   {{ activity.active ? 'Active' : 'Inactive' }}
                 </p>
               </td>
+                 <!-- Actions Column -->
+            <td class="py-5 px-4">
+              <div class="flex space-x-2">
+                <!-- Edit Button -->
+                <button
+                  class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  Edit
+                </button>
+                <!-- Delete Button -->
+                <button
+                  class="px-3 py-1 bg-red-500 bg-rose-500 text-white rounded-md hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </td>
             </tr>
           </tbody>
         </table>
