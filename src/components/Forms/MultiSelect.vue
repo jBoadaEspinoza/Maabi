@@ -1,16 +1,28 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, defineProps, defineEmits, onMounted } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 
-interface Option {
-  value: string
-  text: string
+// Define a generic type for options
+interface Option<T> {
+  item: T
   selected: boolean
   element?: HTMLElement
 }
 
-const target = ref(null)
-const options = ref<Option[]>([])
+const props = defineProps<{
+  options: any[] // Accept any type of object
+  valueKey: string // Key for the value of the option
+  textKey: string // Key for the text of the option
+  label: string // Key for the text of the option
+
+}>();
+
+const emit = defineEmits<{
+  (event: 'update:selected', selectedValues: any[]): void
+}>();
+
+const target = ref<HTMLElement | null>(null)
+const options = ref<Option<any>[]>([])
 const selected = ref<number[]>([])
 const show = ref(false)
 
@@ -31,14 +43,10 @@ onMounted(() => {
 })
 
 const loadOptions = () => {
-  const optionsEl = document.getElementById('multiSelect') as HTMLSelectElement | null
-  if (optionsEl) {
-    options.value = Array.from(optionsEl.options).map((option) => ({
-      value: option.value,
-      text: option.innerText,
-      selected: option.selected
-    }))
-  }
+  options.value = props.options.map(option => ({
+    item: option,
+    selected: false
+  }))
 }
 
 const select = (index: number, event: MouseEvent) => {
@@ -52,6 +60,7 @@ const select = (index: number, event: MouseEvent) => {
     selected.value = selected.value.filter((i) => i !== index)
   }
   options.value = newOptions
+  emit('update:selected', selectedValues())
 }
 
 const remove = (index: number) => {
@@ -60,29 +69,23 @@ const remove = (index: number) => {
     newOptions[index].selected = false
     selected.value = selected.value.filter((i) => i !== index)
     options.value = newOptions
+    emit('update:selected', selectedValues())
   }
 }
 
 const selectedValues = () => {
-  return selected.value.map((option) => options.value[option].value)
+  return selected.value.map((index) => options.value[index].item)
 }
 </script>
 
 <template>
   <div class="relative z-50">
     <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-      Intereses
+      {{ props.label }}
     </label>
     <div>
-      <select class="hidden" id="multiSelect">
-        <option value="1">Option 2</option>
-        <option value="2">Option 3</option>
-        <option value="3">Option 4</option>
-        <option value="4">Option 5</option>
-      </select>
-
       <div class="flex flex-col items-center">
-        <input name="values" type="hidden" :value="selectedValues()" />
+        <input name="values" type="hidden" :value="JSON.stringify(selectedValues())" />
         <div class="relative z-20 inline-block w-full">
           <div class="relative flex flex-col items-center">
             <div @click="open" class="w-full">
@@ -94,7 +97,7 @@ const selectedValues = () => {
                     <div
                       class="my-1.5 flex items-center justify-center rounded border-[.5px] border-stroke bg-gray px-2.5 py-1.5 text-sm font-medium dark:border-strokedark dark:bg-white/30"
                     >
-                      <div class="max-w-full flex-initial">{{ options[index].text }}</div>
+                      <div class="max-w-full flex-initial">{{ options[index].item[props.textKey] }}</div>
                       <div class="flex flex-auto flex-row-reverse">
                         <div @click="remove(index)" class="cursor-pointer pl-2 hover:text-danger">
                           <svg
@@ -122,7 +125,7 @@ const selectedValues = () => {
                     <input
                       placeholder="Select an option"
                       class="h-full w-full appearance-none bg-transparent p-1 px-2 outline-none"
-                      :value="selectedValues()"
+                      :value="selectedValues().map(item => item[props.textKey]).join(', ')"
                     />
                   </div>
                 </div>
@@ -172,7 +175,7 @@ const selectedValues = () => {
                         ]"
                       >
                         <div class="flex w-full items-center">
-                          <div class="mx-2 leading-6">{{ option.text }}</div>
+                          <div class="mx-2 leading-6">{{ option.item[props.textKey] }}</div>
                         </div>
                       </div>
                     </div>

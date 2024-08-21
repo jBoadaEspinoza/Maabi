@@ -7,7 +7,7 @@ import TableThree from '@/components/Tables/TableThree.vue'
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import ActividadesList from '@/components/Actividades/ActividadesList.vue'
 
-const pageTitle = ref('Tables')
+const pageTitle = ref('Actividades')
 
 
 </script>

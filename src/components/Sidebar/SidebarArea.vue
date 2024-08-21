@@ -114,7 +114,7 @@ const menuGroups = ref([
                     fill="white"
                   />
                 </svg>`,
-        label: 'Actividades',
+        label: 'Forms',
         route: '#',
         children: [
           { label: 'Form Elements', route: '/forms/form-elements' },
@@ -142,8 +142,8 @@ const menuGroups = ref([
                     </clipPath>
                   </defs>
                 </svg>`,
-        label: 'Tables',
-        route: '/tables'
+        label: 'Actividades',
+        route: '/Actividades'
       },
       {
         icon: `<svg

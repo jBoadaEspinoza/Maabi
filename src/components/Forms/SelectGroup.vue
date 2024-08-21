@@ -1,31 +1,50 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { defineProps, defineEmits, ref } from 'vue';
 
-const selectedOption = ref<string>('')
-const isOptionSelected = ref<boolean>(false)
+interface Option {
+  value: string;
+  text: string;
+}
+
+const props = defineProps<{
+  options: Option[];
+  modelValue: any;
+  label: string;
+}>();
+
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void;
+}>();
+
+const selectedOption = ref(props.modelValue);
+const isOptionSelected = ref(false);
 
 const changeTextColor = () => {
-  isOptionSelected.value = true
-}
+  isOptionSelected.value = true;
+};
+
+const updateModelValue = (event: Event) => {
+  const target = event.target as HTMLSelectElement;
+  selectedOption.value = target.value;
+  emit('update:modelValue', selectedOption.value);
+};
 </script>
 
 <template>
   <div class="mb-4.5">
-    <label class="mb-2.5 block text-black dark:text-white"> Subject </label>
-
+    <label class="mb-2.5 block text-black dark:text-white">{{ props.label }}</label>
     <div class="relative z-20 bg-transparent dark:bg-form-input">
       <select
         v-model="selectedOption"
         class="relative z-20 w-full appearance-none rounded border border-stroke bg-transparent py-3 px-5 outline-none transition focus:border-primary active:border-primary dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
         :class="{ 'text-black dark:text-white': isOptionSelected }"
-        @change="changeTextColor"
+        @change="updateModelValue"
       >
-        <option value="" disabled selected>Type your subject</option>
-        <option value="USA">USA</option>
-        <option value="UK">UK</option>
-        <option value="Canada">Canada</option>
+        <option value="" disabled selected>Select an option</option>
+        <option v-for="option in props.options" :key="option.value" :value="option.value">
+          {{ option.text }}
+        </option>
       </select>
-
       <span class="absolute top-1/2 right-4 z-30 -translate-y-1/2">
         <svg
           class="fill-current"

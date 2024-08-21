@@ -57,11 +57,11 @@ const routes = [
     }
   },
   {
-    path: '/tables',
-    name: 'tables',
+    path: '/Actividades',
+    name: 'Actividades',
     component: TablesView,
     meta: {
-      title: 'Tables'
+      title: 'Actividades'
     }
   },
   {

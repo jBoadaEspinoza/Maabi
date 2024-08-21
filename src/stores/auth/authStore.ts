@@ -84,8 +84,16 @@ export const useAuthStore = defineStore('auth', {
       localStorage.removeItem('user');
       localStorage.removeItem('token');
     },
+
+
+
   },
   getters: {
     isAuthenticated: (state) => !!state.token,
+      getToken: (state) => {
+      // Devuelve el token desde el estado o el localStorage
+      return state.token || localStorage.getItem('token');
+    },
+
   },
 });

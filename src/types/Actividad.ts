@@ -1,3 +1,5 @@
+import type { Interes } from "./Interes";
+
 export interface Actividad {
     object: string;
     id: string;
@@ -10,5 +12,5 @@ export interface Actividad {
     place_id: string;
     type_id: string;
     active: boolean;
-    interests: string[];
+    interests: Interes[];
 }
