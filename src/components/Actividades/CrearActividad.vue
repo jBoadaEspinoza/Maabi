@@ -106,20 +106,21 @@
         </div>
       </DefaultCard>
       <!-- Actions -->
-      <div class="flex justify-end mt-4">
+    <!-- Fixed Actions Footer -->
+    <div class="flex justify-end mt-4 p-4  bg-white sticky bottom-0 z-99">
         <button
           type="button"
           @click="closeModal"
-          class="px-4 bg-zinc-700 py-2 bg-gray-500 text-white rounded-md mr-2"
+          class="px-4 py-2 bg-zinc-700 text-white rounded-md mr-2"
         >
-          Close
+          Cerrar
         </button>
         <button
           type="submit"
           @click="submitActivity"
           class="px-4 py-2 bg-blue-600 text-white rounded-md"
         >
-          Submit
+          Crear
         </button>
       </div>
     </div>
@@ -127,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { defineEmits, defineProps, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import type { Actividad } from '@/types/Actividad'
 import MultiSelect from '../Forms/MultiSelect.vue'
 import DefaultCard from '../Forms/DefaultCard.vue'
@@ -250,10 +251,10 @@ const submitActivity = async () => {
     activitySchema.parse(activityData);
     
     // Enviar la solicitud para crear la actividad
-    await ActividadesService.createActivity(token, activityData);
-    
+    const response = await ActividadesService.createActivity(token, activityData);
+    console.log(response);
     // Cerrar el modal y limpiar el estado si es necesario
-    closeModal();
+    //closeModal();
     alert('Actividad creada exitosamente');
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -266,6 +267,7 @@ const submitActivity = async () => {
     }
   }
 };
+
 // Obtén los intereses cuando el componente se monta
 onMounted(() => {
   fetchInterests()

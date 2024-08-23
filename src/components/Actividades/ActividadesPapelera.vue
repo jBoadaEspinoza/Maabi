@@ -6,38 +6,22 @@ import type { Interes } from '@/types/Interes'
 import { onMounted, ref } from 'vue'
 import CrearActividad from './CrearActividad.vue'
 import InteresesModal from './InteresesModal.vue' // Importar el nuevo componente
-import type { TipoActividad } from '@/types/TipoActividad'
 
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
-// Activity Types
-const activityTypes = ref<TipoActividad[]>([])
 
 // Control del modal de intereses
 const isInterestsModalOpen = ref(false)
 const selectedInterests = ref<Interes[]>([]) // Almacena los intereses seleccionados para mostrar en el modal
-
+// Activity Types
+const activityTypes = ref<TipoActividad[]>([])
 const fetchActivities = async () => {
   try {
-    const response = await ActividadesService.getAllActivities(authStore.token, 10, 0, 'ASC', true)
+    const response = await ActividadesService.getAllActivities(authStore.token, 10, 0, 'ASC', false)
     console.log(response)
     activities.value = response
   } catch (error) {
     console.error('Failed to fetch activities', error)
-  }
-}
-
-onMounted(() => {
-  fetchActivities()
-  fetchActivityTypes()
-})
-
-const fetchActivityTypes = async () => {
-  try {
-    activityTypes.value = await ActividadesService.getAllActivityTypes(authStore.token)
-    console.log(activityTypes.value)
-  } catch (error) {
-    console.error('Error fetching activity types:', error)
   }
 }
 
@@ -51,20 +35,38 @@ const closeInterestsModal = () => {
   isInterestsModalOpen.value = false
 }
 
-// Método para eliminar una actividad
-const deleteActivity = async (id: string) => {
+// Método para restaurar una actividad
+const restoreActivity = async (id: string) => {
   try {
-    const response = await ActividadesService.deleteActivity(authStore.token, id)
-    console.log(response)
-    activities.value = activities.value.filter((activity) => activity.id !== id)
+    const restoredActivity = await ActividadesService.restaurarActividad(authStore.token, id)
+    // Actualiza la actividad restaurada en la lista
+    console.log(restoreActivity);
+    const index = activities.value.findIndex((activity) => activity.id === id)
+    if (index !== -1) {
+      activities.value[index] = restoredActivity
+    }
   } catch (error) {
-    console.error('Failed to delete activity', error)
+    console.error('Failed to restore activity', error)
   }
 }
+
+const fetchActivityTypes = async () => {
+  try {
+    activityTypes.value = await ActividadesService.getAllActivityTypes(authStore.token)
+    console.log(activityTypes.value)
+  } catch (error) {
+    console.error('Error fetching activity types:', error)
+  }
+}
+
 const getTypeName = (typeId: string) => {
   const type = activityTypes.value.find((t) => t.id === typeId)
   return type ? type.singular_denomination_es : 'Unknown'
 }
+onMounted(() => {
+  fetchActivities()
+  fetchActivityTypes()
+})
 </script>
 
 <template>
@@ -95,6 +97,7 @@ const getTypeName = (typeId: string) => {
             <th class="py-4 px-4 font-medium text-black dark:text-white">Estado</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Intereses</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Tipos</th>
+
             <th class="py-4 px-4 font-medium text-black dark:text-white">Acciones</th>
           </tr>
         </thead>
@@ -108,22 +111,13 @@ const getTypeName = (typeId: string) => {
               <h5 class="font-medium text-black dark:text-white">
                 {{ activity.name_en }} / {{ activity.name_es }}
               </h5>
-              <!-- Descripción en Inglés y Español -->
-              <p class="text-sm">
-                <span class="font-semibold">EN:</span>
-                {{ activity.description_en.substring(0, 100) + '...' }}
-              </p>
-              <p class="text-sm">
-                <span class="font-semibold">ES:</span>
-                {{ activity.description_es.substring(0, 100) + '...' }}
-              </p>
+              <p class="text-sm">{{ activity.description_en.substring(0, 100) + '...' }}</p>
             </td>
             <td class="py-5 px-4">
               <p class="text-black dark:text-white">
                 {{ new Date(activity.created_utc).toLocaleDateString() }}
               </p>
             </td>
-
             <!-- Tradicional Column -->
             <td class="py-5 px-4">
               <p
@@ -136,8 +130,6 @@ const getTypeName = (typeId: string) => {
                 {{ activity.traditional ? 'Si' : 'No' }}
               </p>
             </td>
-            <!-- Estado Column -->
-
             <td class="py-5 px-4">
               <p
                 class="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium"
@@ -149,7 +141,6 @@ const getTypeName = (typeId: string) => {
                 {{ activity.active ? 'Active' : 'Inactive' }}
               </p>
             </td>
-
             <!-- Interests Column -->
             <td class="py-5 px-4">
               <button
@@ -200,9 +191,9 @@ const getTypeName = (typeId: string) => {
                     </g>
                   </svg>
                 </button>
-                <!-- Delete Button -->
+                <!-- Restaurar Button -->
                 <button
-                  @click="deleteActivity(activity.id)"
+                  @click="restoreActivity(activity.id)"
                   class="px-3 py-1 bg-red text-white rounded-md hover:bg-red-600"
                 >
                   <svg
@@ -213,7 +204,7 @@ const getTypeName = (typeId: string) => {
                   >
                     <path
                       fill="#ffffff"
-                      d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h4a1 1 0 1 1 0 2h-1.069l-.867 12.142A2 2 0 0 1 17.069 22H6.93a2 2 0 0 1-1.995-1.858L4.07 8H3a1 1 0 0 1 0-2h4zm2 2h6V4H9zM6.074 8l.857 12H17.07l.857-12zM10 10a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1m4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1"
+                      d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89l.07.14L9 12H6a7 7 0 0 1 7-7a7 7 0 0 1 7 7a7 7 0 0 1-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42A8.9 8.9 0 0 0 13 21a9 9 0 0 0 9-9a9 9 0 0 0-9-9"
                     />
                   </svg>
                 </button>
