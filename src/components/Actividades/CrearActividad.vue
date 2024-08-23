@@ -107,7 +107,7 @@
       </DefaultCard>
       <!-- Actions -->
     <!-- Fixed Actions Footer -->
-    <div class="flex justify-end mt-4 p-4  bg-white sticky bottom-0 z-99">
+    <div class="flex justify-end mt-4 p-4 sticky bottom-0 z-99">
         <button
           type="button"
           @click="closeModal"
@@ -143,10 +143,12 @@ import ActividadesService from '@/services/actividades/ActividadesService'
 import SelectGroup from '../Forms/SelectGroup.vue'
 import { activitySchema } from '@/schemes/ActivitySchema'
 import { z } from 'zod'
+import { actividadStore } from '@/stores/Actividades/actividadStore'
 // Definición de las props
 const props = defineProps<{
   show: boolean
 }>()
+const activitiesStore = actividadStore()
 
 // Estado local para la actividad
 const actividad = ref<Actividad>({
@@ -160,7 +162,7 @@ const actividad = ref<Actividad>({
   traditional: false,
   place_id: '',
   type_id: '',
-  active: false,
+  active: true,
   interests: []
 })
 
@@ -251,8 +253,15 @@ const submitActivity = async () => {
     activitySchema.parse(activityData);
     
     // Enviar la solicitud para crear la actividad
-    const response = await ActividadesService.createActivity(token, activityData);
-    console.log(response);
+    const actividadCreada = await ActividadesService.createActivity(token, activityData);
+
+    const ids = actividad.value.interests.map((interest: { id: any }) => interest.id);
+
+    //const response = await ActividadesService.addInterestsToActivity(token, actividad.id,ids);
+    
+    console.log(ids);
+    await activitiesStore.fetchAllActivities(authStore.getToken || '')
+
     // Cerrar el modal y limpiar el estado si es necesario
     //closeModal();
     alert('Actividad creada exitosamente');

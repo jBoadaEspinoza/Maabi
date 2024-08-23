@@ -64,11 +64,14 @@ const toggleView = () => {
 
         <!-- Botón para alternar entre Papelera y Lista de Actividades -->
         <button
-          class="inline-flex items-center justify-center rounded-md bg-red py-2 px-4 text-sm font-medium text-white hover:bg-opacity-90"
-          @click="toggleView"
-        >
-          {{ showPapelera ? 'Mostrar Actividades' : 'Papelera' }}
-        </button>
+    :class="[
+      'inline-flex items-center justify-center rounded-md py-2 px-4 text-sm font-medium text-white',
+      showPapelera ? 'bg-blue-800 hover:bg-blue-600' : 'bg-red hover:bg-rose-400'
+    ]"
+    @click="toggleView"
+  >
+    {{ showPapelera ? 'Mostrar Actividades' : 'Papelera' }}
+  </button>
       </div>
       <ActividadesList v-if="!showPapelera" />
       <ActividadesPapelera v-else />

@@ -3,28 +3,30 @@ import ActividadesService from '@/services/actividades/ActividadesService'
 import { useAuthStore } from '@/stores/auth/authStore'
 import type { Actividad } from '@/types/Actividad'
 import type { Interes } from '@/types/Interes'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import CrearActividad from './CrearActividad.vue'
 import InteresesModal from './InteresesModal.vue' // Importar el nuevo componente
+import type { TipoActividad } from '@/types/TipoActividad'
+import { actividadStore } from '@/stores/Actividades/actividadStore'
 
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
+const activitiesStore = actividadStore()
 
 // Control del modal de intereses
 const isInterestsModalOpen = ref(false)
 const selectedInterests = ref<Interes[]>([]) // Almacena los intereses seleccionados para mostrar en el modal
 // Activity Types
 const activityTypes = ref<TipoActividad[]>([])
-const fetchActivities = async () => {
+  const fetchActivities = async () => {
   try {
-    const response = await ActividadesService.getAllActivities(authStore.token, 10, 0, 'ASC', false)
-    console.log(response)
-    activities.value = response
+    await activitiesStore.fetchAllActivities(authStore.getToken || '', false)
+    activities.value = activitiesStore.getActivities // Update local ref with store data
+    console.log(activities.value)
   } catch (error) {
     console.error('Failed to fetch activities', error)
   }
 }
-
 // Abre el modal de intereses y carga los intereses de la actividad seleccionada
 const openInterestsModal = (interests: Interes[]) => {
   selectedInterests.value = interests
@@ -63,10 +65,18 @@ const getTypeName = (typeId: string) => {
   const type = activityTypes.value.find((t) => t.id === typeId)
   return type ? type.singular_denomination_es : 'Unknown'
 }
+
+// Watch for changes in the store's activities and update local ref
+watch(() => activitiesStore.getActivities, (newActivities) => {
+  activities.value = newActivities;
+}, { immediate: true });
+
 onMounted(() => {
   fetchActivities()
   fetchActivityTypes()
 })
+
+
 </script>
 
 <template>

@@ -94,19 +94,25 @@ class ActividadesService {
   }
 
   static async deleteActivity(token: string, id: string): Promise<void> {
-    try {
-      await axiosInstance.delete(`/activities/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+  try {
+    const response = await axiosInstance.post(
+      `/activities/${id}/sendToTrash`, 
+      null, // No necesitas enviar un payload en el cuerpo
+      {
+        headers: { 
+          Authorization: `Bearer ${token}`, // El token se envía como encabezado
+          'Content-Type': 'application/json'
         }
-      });
+      }
+    );
   
-      console.log(`Activity with ID ${id} has been set to inactive.`);
-    } catch (error) {
-      console.error('Error deleting activity:', error);
-      throw error;
-    }
+    console.log(response);
+  } catch (error) {
+    console.error('Error deleting activity:', error);
+    throw error;
   }
+}
+
 
   /**
    * Agrega una lista de intereses a una actividad turística.

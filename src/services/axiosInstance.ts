@@ -2,8 +2,10 @@
 import { useRouter } from 'vue-router'
 import axios from 'axios';
 import router from '@/router'
+import { useAuthStore } from '@/stores/auth/authStore';
 
 const API_URL = 'https://api.maabi.online/v1.0';
+const API_URL2 = 'https://fdzqzmxv-8080.brs.devtunnels.ms/v1.0';
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -22,10 +24,12 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
+
+
+
   (response) => {
      // Verifica si el código de error es "invalid_token" o "token_expired"
      const errorCode = response.data?.response?.code;
-
      if (response.status === 200 && 
          (errorCode === 'invalid_token' || errorCode === 'token_expired')) {
        
@@ -37,6 +41,8 @@ axiosInstance.interceptors.response.use(
        // Rechaza la promesa para detener cualquier procesamiento adicional de este response
        return Promise.reject(new Error('TOKEN inválido o caducado'));
      }
+   
+
  
      return response;
 
