@@ -8,6 +8,12 @@ import CrearActividad from './CrearActividad.vue'
 import InteresesModal from './InteresesModal.vue' // Importar el nuevo componente
 import type { TipoActividad } from '@/types/TipoActividad'
 import { actividadStore } from '@/stores/Actividades/actividadStore'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css';
+import DataTable from 'datatables.net-vue3'
+import DataTablesLib from 'datatables.net';
+  
+DataTable.use(DataTablesLib);
 
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
@@ -67,37 +73,15 @@ const deleteActivity = async (id: string) => {
     const response = await ActividadesService.deleteActivity(authStore.getToken, id)
     console.log(response)
     activities.value = activities.value.filter((activity) => activity.id !== id)
+
+    toast.success('La actividad ha sido eliminada exitosamente.');
+
+
   } catch (error) {
     console.error('Failed to delete activity', error)
   }
 }
 
-const API_URL = 'https://api.maabi.online/v1.0'
-
-// Método para eliminar una actividad
-const deleteActivity2 = async (id: string) => {
-  console.log(id)
-  try {
-    const response = await fetch(`${API_URL}/activities/${id}`, {
-      method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${authStore.token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete activity: ${response.statusText}`)
-    }
-
-    const data = await response.json()
-    console.log('Activity deleted successfully', data)
-
-    // Filtrar la actividad eliminada de la lista
-  } catch (error) {
-    console.error('Failed to delete activity', error)
-  }
-}
 
 const getTypeName = (typeId: string) => {
   const type = activityTypes.value.find((t) => t.id === typeId)
@@ -266,6 +250,8 @@ watch(() => activitiesStore.getActivities, (newActivities) => {
           </tr>
         </tbody>
       </table>
+      
+
     </div>
   </div>
 </template>

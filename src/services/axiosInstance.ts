@@ -41,7 +41,14 @@ axiosInstance.interceptors.response.use(
        // Rechaza la promesa para detener cualquier procesamiento adicional de este response
        return Promise.reject(new Error('TOKEN inválido o caducado'));
      }
-   
+       // Si la respuesta tiene success: true, actualiza el token
+    if (response.data?.response?.success) {
+      const updatedToken = response.data.response.updated_token;
+      if (updatedToken) {
+        localStorage.setItem('token', updatedToken);
+        //console.log('Token actualizado:', updatedToken);
+      }
+    }
 
  
      return response;

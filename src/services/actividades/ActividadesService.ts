@@ -127,22 +127,24 @@ class ActividadesService {
     interests: string[]
   ): Promise<any> {
     try {
-      await axiosInstance.patch(
+      // Envía la solicitud POST y devuelve la respuesta
+      const response = await axiosInstance.post(
         `/activities/${id}/addInterests`,
-        { interests }, // El cuerpo de la petición
+        { interests }, // El cuerpo de la petición con la lista de intereses
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           }
         }
-      )
+      );
+      return response.data; // Asegúrate de devolver la data
     } catch (error) {
-      console.error('Error adding interests to activity:', error)
-      throw error
+      console.error('Error adding interests to activity:', error);
+      throw error; // Lanza el error para manejarlo en el código que llama a esta función
     }
   }
-
+  
   /**
    * Restaura una actividad turística enviándola a un estado activo (active = TRUE).
    * @param token - Token de autorización Bearer.
@@ -151,25 +153,28 @@ class ActividadesService {
    */
   static async restaurarActividad(token: string, id: string): Promise<any> {
     try {
-      const response = await axiosInstance.patch(
-        `/activities/${id}/restore`,
+      const response = await axiosInstance.post(
+        `/activities/${id}/restore`, 
+        null, // No necesitas enviar un payload en el cuerpo
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`, // El token se envía como encabezado
             'Content-Type': 'application/json'
           }
         }
-      )
+      );
+  
       console.log(response);
-
+  
       // Extrae la actividad restaurada del campo response.data
-      const restoredActivity = response.data?.response?.data || {}
-      return restoredActivity as Actividad
+      const restoredActivity = response.data?.response?.data || {};
+      return restoredActivity as Actividad;
     } catch (error) {
-      console.error('Error restoring activity:', error)
-      throw error
+      console.error('Error restoring activity:', error);
+      throw error;
     }
   }
+  
 }
 
 export default ActividadesService

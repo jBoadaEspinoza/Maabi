@@ -8,6 +8,8 @@ import CrearActividad from './CrearActividad.vue'
 import InteresesModal from './InteresesModal.vue' // Importar el nuevo componente
 import type { TipoActividad } from '@/types/TipoActividad'
 import { actividadStore } from '@/stores/Actividades/actividadStore'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css'
 
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
@@ -18,7 +20,7 @@ const isInterestsModalOpen = ref(false)
 const selectedInterests = ref<Interes[]>([]) // Almacena los intereses seleccionados para mostrar en el modal
 // Activity Types
 const activityTypes = ref<TipoActividad[]>([])
-  const fetchActivities = async () => {
+const fetchActivities = async () => {
   try {
     await activitiesStore.fetchAllActivities(authStore.getToken || '', false)
     activities.value = activitiesStore.getActivities // Update local ref with store data
@@ -42,11 +44,10 @@ const restoreActivity = async (id: string) => {
   try {
     const restoredActivity = await ActividadesService.restaurarActividad(authStore.token, id)
     // Actualiza la actividad restaurada en la lista
-    console.log(restoreActivity);
-    const index = activities.value.findIndex((activity) => activity.id === id)
-    if (index !== -1) {
-      activities.value[index] = restoredActivity
-    }
+    //console.log(restoreActivity);
+    activities.value = activities.value.filter((activity) => activity.id !== id)
+
+    toast.success('La actividad ha sido restaurada exitosamente.')
   } catch (error) {
     console.error('Failed to restore activity', error)
   }
@@ -67,16 +68,18 @@ const getTypeName = (typeId: string) => {
 }
 
 // Watch for changes in the store's activities and update local ref
-watch(() => activitiesStore.getActivities, (newActivities) => {
-  activities.value = newActivities;
-}, { immediate: true });
+watch(
+  () => activitiesStore.getActivities,
+  (newActivities) => {
+    activities.value = newActivities
+  },
+  { immediate: true }
+)
 
 onMounted(() => {
   fetchActivities()
   fetchActivityTypes()
 })
-
-
 </script>
 
 <template>
@@ -121,7 +124,15 @@ onMounted(() => {
               <h5 class="font-medium text-black dark:text-white">
                 {{ activity.name_en }} / {{ activity.name_es }}
               </h5>
-              <p class="text-sm">{{ activity.description_en.substring(0, 100) + '...' }}</p>
+              <!-- Descripción en Inglés y Español -->
+              <p class="text-sm">
+                <span class="font-semibold">EN:</span>
+                {{ activity.description_en.substring(0, 100) + '...' }}
+              </p>
+              <p class="text-sm">
+                <span class="font-semibold">ES:</span>
+                {{ activity.description_es.substring(0, 100) + '...' }}
+              </p>
             </td>
             <td class="py-5 px-4">
               <p class="text-black dark:text-white">

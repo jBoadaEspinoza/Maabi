@@ -23,7 +23,7 @@ export const actividadStore = defineStore('activities', {
 
       try {
         // Llama al servicio con el parámetro `active`
-        const response = await ActividadesService.getAllActivities(token, 10, 0, 'ASC', active)
+        const response = await ActividadesService.getAllActivities(token, 20, 0, 'ASC', active)
         this.activities = response // Asigna la respuesta al estado activities
         console.log('Activities fetched successfully:', response)
       } catch (error: any) {

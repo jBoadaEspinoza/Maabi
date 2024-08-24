@@ -248,18 +248,29 @@ const submitActivity = async () => {
     active: actividad.value.active ?? true, // Default a true si no está definido
   };
 
+
   // Validar los datos utilizando el esquema
   try {
-    activitySchema.parse(activityData);
     
     // Enviar la solicitud para crear la actividad
-    const actividadCreada = await ActividadesService.createActivity(token, activityData);
+    activitySchema.parse(activityData);
+    const interestIds = actividad.value.interests.map((interest: { id: any }) => interest.id);
 
-    const ids = actividad.value.interests.map((interest: { id: any }) => interest.id);
+    // Enviar la solicitud para crear la actividad
+    const actividadCreada = await ActividadesService.createActivity(authStore.getToken, activityData);
+    console.log(actividadCreada);
 
-    //const response = await ActividadesService.addInterestsToActivity(token, actividad.id,ids);
-    
-    console.log(ids);
+    // Asegúrate de que la actividad se haya creado correctamente antes de continuar
+    if (actividadCreada && actividadCreada.id) {
+      // Utiliza el ID de la actividad creada para agregar los intereses
+      const response = await ActividadesService.addInterestsToActivity(authStore.getToken, actividadCreada.id, interestIds);
+      
+      console.log(response);
+    } else {
+      throw new Error('No se pudo obtener el ID de la actividad creada.');
+    }
+
+
     await activitiesStore.fetchAllActivities(authStore.getToken || '')
 
     // Cerrar el modal y limpiar el estado si es necesario
