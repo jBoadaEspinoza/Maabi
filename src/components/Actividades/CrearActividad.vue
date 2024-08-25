@@ -7,7 +7,9 @@
 
   >
     <!-- Modal Content -->
-    <div class="bg-white p-6 rounded-lg w-203 h-1/2 max-h-[80vh] relative overflow-auto" @click.stop>
+    <div class="bg-white p-6 rounded-lg w-203 max-h-[90vh] relative overflow-auto" 
+    style="height: 70%;"
+    @click.stop>
       <DefaultCard cardTitle="Crear Actividades">
         <!-- Modal Body -->
         <div class="flex flex-col gap-5.5 p-6.5">

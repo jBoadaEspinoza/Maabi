@@ -81,14 +81,12 @@ const toggleView = () => {
           ]"
           @click="toggleView"
         >
-          {{ showPapelera ? 'Retornar a actividades ' : 'Papelera' }}
-
           <svg
             v-if="showPapelera"
             xmlns="http://www.w3.org/2000/svg"
             width="25"
             height="25"
-            class="ml-2"
+            class="mr-2"
             viewBox="0 0 256 256"
           >
             <path
@@ -97,10 +95,12 @@ const toggleView = () => {
             />
           </svg>
 
+          {{ showPapelera ? 'Retornar a actividades ' : 'Papelera' }}
+
           <!-- SVG para "Papelera" (Segundo) -->
           <svg
-            v-else
-            xmlns="http://www.w3.org/2000/svg"
+          v-if="!showPapelera"
+          xmlns="http://www.w3.org/2000/svg"
             width="20"
             height="20"
             viewBox="0 0 24 24"
