@@ -2,10 +2,12 @@
   <!-- Modal Overlay -->
   <div
     v-if="show"
-    class="fixed inset-0 bg-slate-600 bg-opacity-75 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-slate-600 bg-opacity-75 flex items-center justify-center z-50 "
+    @click="handleBackgroundClick"
+
   >
     <!-- Modal Content -->
-    <div class="bg-white p-6 rounded-lg w-203 h-1/2 max-h-[80vh] relative overflow-auto">
+    <div class="bg-white p-6 rounded-lg w-203 h-1/2 max-h-[80vh] relative overflow-auto" @click.stop>
       <DefaultCard cardTitle="Crear Actividades">
         <!-- Modal Body -->
         <div class="flex flex-col gap-5.5 p-6.5">
@@ -62,7 +64,7 @@
           </div>
 
           <SelectGroup
-            :options="places.map((place) => ({ value: place.id, text: place.denomination_short }))"
+            :options="places.map((place) => ({ value: place.id, text: place.denomination_long }))"
             v-model="selectedPlaceId"
             label="Lugar"
             @update:modelValue="handlePlaceChange"
@@ -144,6 +146,8 @@ import SelectGroup from '../Forms/SelectGroup.vue'
 import { activitySchema } from '@/schemes/ActivitySchema'
 import { z } from 'zod'
 import { actividadStore } from '@/stores/Actividades/actividadStore'
+import { toast } from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css';
 // Definición de las props
 const props = defineProps<{
   show: boolean
@@ -187,6 +191,10 @@ const emit = defineEmits(['close'])
 
 // Métodos
 function closeModal() {
+  emit('close')
+}
+
+const handleBackgroundClick = () => {
   emit('close')
 }
 
@@ -275,7 +283,7 @@ const submitActivity = async () => {
 
     // Cerrar el modal y limpiar el estado si es necesario
     //closeModal();
-    alert('Actividad creada exitosamente');
+    toast.success('La actividad ha sido creada exitosamente.');
   } catch (error) {
     if (error instanceof z.ZodError) {
       // Mostrar los errores de validación al usuario

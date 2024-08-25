@@ -10,7 +10,7 @@ import type { TipoActividad } from '@/types/TipoActividad'
 import { actividadStore } from '@/stores/Actividades/actividadStore'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
-
+import ConfimrRestoreModal from './ConfimrRestoreModal.vue'
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
 const activitiesStore = actividadStore()
@@ -62,11 +62,37 @@ const fetchActivityTypes = async () => {
   }
 }
 
+
 const getTypeName = (typeId: string) => {
   const type = activityTypes.value.find((t) => t.id === typeId)
-  return type ? type.singular_denomination_es : 'Unknown'
+  return type ? type.singular_denomination_es.toUpperCase() : 'Unknown'
 }
 
+const isDeleteModalOpen = ref(false)
+const activityToDelete = ref<string | null>(null)
+
+const openDeleteModal = (id: string) => {
+  activityToDelete.value = id
+  isDeleteModalOpen.value = true
+}
+
+const closeDeleteModal = () => {
+  isDeleteModalOpen.value = false
+}
+const confirmDelete = async () => {
+  if (activityToDelete.value) {
+    try {
+      await ActividadesService.restaurarActividad(authStore.token, activityToDelete.value)
+      activities.value = activities.value.filter((activity) => activity.id !== activityToDelete.value)
+      toast.success('La actividad ha sido restaurada exitosamente.')
+    } catch (error) {
+      console.error('Failed to delete activity', error)
+      toast.error('Error al restaurar la actividad.')
+    } finally {
+      closeDeleteModal()
+    }
+  }
+}
 // Watch for changes in the store's activities and update local ref
 watch(
   () => activitiesStore.getActivities,
@@ -91,7 +117,11 @@ onMounted(() => {
       :interests="selectedInterests"
       @close="closeInterestsModal"
     />
-
+    <ConfimrRestoreModal
+      :isOpen="isDeleteModalOpen"
+      @cancel="closeDeleteModal"
+      @confirm="confirmDelete"
+    />
     <div class="max-w-full overflow-x-auto">
       <table class="w-full table-auto">
         <thead>
@@ -122,7 +152,7 @@ onMounted(() => {
             </td>
             <td class="py-5 px-4 pl-9 xl:pl-11">
               <h5 class="font-medium text-black dark:text-white">
-                {{ activity.name_en }} / {{ activity.name_es }}
+                {{ activity.name_en.toUpperCase() }} / {{ activity.name_es.toUpperCase() }}
               </h5>
               <!-- Descripción en Inglés y Español -->
               <p class="text-sm">
@@ -192,29 +222,10 @@ onMounted(() => {
             <!-- Actions Column -->
             <td class="py-5 px-4">
               <div class="flex space-x-2">
-                <!-- Edit Button -->
-                <button class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                  >
-                    <g
-                      fill="none"
-                      stroke="#ffffff"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                    >
-                      <path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" />
-                      <path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3zM16 5l3 3" />
-                    </g>
-                  </svg>
-                </button>
+               
                 <!-- Restaurar Button -->
                 <button
-                  @click="restoreActivity(activity.id)"
+                @click="openDeleteModal(activity.id)"
                   class="px-3 py-1 bg-red text-white rounded-md hover:bg-red-600"
                 >
                   <svg

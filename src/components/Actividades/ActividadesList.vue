@@ -9,11 +9,13 @@ import InteresesModal from './InteresesModal.vue' // Importar el nuevo component
 import type { TipoActividad } from '@/types/TipoActividad'
 import { actividadStore } from '@/stores/Actividades/actividadStore'
 import { toast } from 'vue3-toastify'
-import 'vue3-toastify/dist/index.css';
+import 'vue3-toastify/dist/index.css'
 import DataTable from 'datatables.net-vue3'
-import DataTablesLib from 'datatables.net';
-  
-DataTable.use(DataTablesLib);
+import DataTablesLib from 'datatables.net'
+import type { Lugar } from '@/types/Lugar'
+import LugarService from '@/services/lugares/LugarService'
+import ConfirmDeleteModal from './ConfirmDeleteModal.vue'
+DataTable.use(DataTablesLib)
 
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
@@ -22,14 +24,14 @@ const activitiesStore = actividadStore()
 // Activity Types
 const activityTypes = ref<TipoActividad[]>([])
 
+const places = ref<Lugar[]>([])
+
 // Control del modal de intereses
 const isInterestsModalOpen = ref(false)
 const selectedInterests = ref<Interes[]>([]) // Almacena los intereses seleccionados para mostrar en el modal
 
 const fetchActivities = async () => {
-  console.log(authStore.getToken)
-
-
+  //console.log(authStore.getToken)
   try {
     await activitiesStore.fetchAllActivities(authStore.getToken || '')
     activities.value = activitiesStore.getActivities // Update local ref with store data
@@ -39,17 +41,21 @@ const fetchActivities = async () => {
   }
 }
 
-onMounted(() => {
-  fetchActivities()
-  fetchActivityTypes()
-})
-
 const fetchActivityTypes = async () => {
   try {
     activityTypes.value = await ActividadesService.getAllActivityTypes(authStore.token)
     console.log(activityTypes.value)
   } catch (error) {
     console.error('Error fetching activity types:', error)
+  }
+}
+
+const fetchPlaces = async () => {
+  try {
+    places.value = await LugarService.getAllPlaces(authStore.token)
+    console.log(places.value)
+  } catch (error) {
+    console.error('Error fetching places:', error)
   }
 }
 
@@ -65,34 +71,71 @@ const closeInterestsModal = () => {
 
 // Método para eliminar una actividad
 const deleteActivity = async (id: string) => {
-
   try {
     console.log(authStore.getToken)
-
 
     const response = await ActividadesService.deleteActivity(authStore.getToken, id)
     console.log(response)
     activities.value = activities.value.filter((activity) => activity.id !== id)
 
-    toast.success('La actividad ha sido eliminada exitosamente.');
-
-
+    toast.success('La actividad ha sido eliminada exitosamente.')
   } catch (error) {
     console.error('Failed to delete activity', error)
   }
 }
 
-
 const getTypeName = (typeId: string) => {
   const type = activityTypes.value.find((t) => t.id === typeId)
-  return type ? type.singular_denomination_es : 'Unknown'
+  return type ? type.singular_denomination_es.toUpperCase() : 'Unknown'
+}
+
+const getPlaceName = (placeId: string) => {
+  const place = places.value.find((p) => p.id === placeId)
+  return place ? place.denomination_long.toUpperCase() : 'Unknown'
+}
+const isDeleteModalOpen = ref(false)
+const activityToDelete = ref<string | null>(null)
+
+
+
+const openDeleteModal = (id: string) => {
+  activityToDelete.value = id
+  isDeleteModalOpen.value = true
+}
+
+const closeDeleteModal = () => {
+  isDeleteModalOpen.value = false
+}
+const confirmDelete = async () => {
+  if (activityToDelete.value) {
+    try {
+      await ActividadesService.deleteActivity(authStore.getToken, activityToDelete.value)
+      activities.value = activities.value.filter((activity) => activity.id !== activityToDelete.value)
+      toast.success('La actividad ha sido eliminada exitosamente.')
+    } catch (error) {
+      console.error('Failed to delete activity', error)
+      toast.error('Error al eliminar la actividad.')
+    } finally {
+      closeDeleteModal()
+    }
+  }
 }
 
 
+onMounted(() => {
+  fetchActivities()
+  fetchActivityTypes()
+  fetchPlaces()
+})
+
 // Watch for changes in the store's activities and update local ref
-watch(() => activitiesStore.getActivities, (newActivities) => {
-  activities.value = newActivities;
-}, { immediate: true });
+watch(
+  () => activitiesStore.getActivities,
+  (newActivities) => {
+    activities.value = newActivities
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -103,6 +146,12 @@ watch(() => activitiesStore.getActivities, (newActivities) => {
       :show="isInterestsModalOpen"
       :interests="selectedInterests"
       @close="closeInterestsModal"
+    />
+      <!-- Modal de confirmación para eliminar una actividad -->
+    <ConfirmDeleteModal
+      :isOpen="isDeleteModalOpen"
+      @cancel="closeDeleteModal"
+      @confirm="confirmDelete"
     />
 
     <div class="max-w-full overflow-x-auto">
@@ -121,6 +170,8 @@ watch(() => activitiesStore.getActivities, (newActivities) => {
               Tradicional
             </th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Estado</th>
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Lugar</th>
+
             <th class="py-4 px-4 font-medium text-black dark:text-white">Intereses</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Tipos</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Acciones</th>
@@ -133,8 +184,8 @@ watch(() => activitiesStore.getActivities, (newActivities) => {
               {{ index + 1 }}
             </td>
             <td class="py-5 px-4 pl-9 xl:pl-11">
-              <h5 class="font-medium text-black dark:text-white">
-                {{ activity.name_en }} / {{ activity.name_es }}
+              <h5 class="font-bold text-black dark:text-white">
+                {{ activity.name_en.toUpperCase() }} / {{ activity.name_es.toUpperCase() }}
               </h5>
               <!-- Descripción en Inglés y Español -->
               <p class="text-sm">
@@ -177,6 +228,16 @@ watch(() => activitiesStore.getActivities, (newActivities) => {
                 {{ activity.active ? 'Active' : 'Inactive' }}
               </p>
             </td>
+
+            <!-- Lugar Column -->
+
+             <!-- Lugar Column -->
+             <td class="py-5 px-4">
+              <p class="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium">
+                {{ getPlaceName(activity.place_id) }}
+              </p>
+            </td>
+
 
             <!-- Interests Column -->
             <td class="py-5 px-4">
@@ -230,7 +291,7 @@ watch(() => activitiesStore.getActivities, (newActivities) => {
                 </button>
                 <!-- Delete Button -->
                 <button
-                  @click="deleteActivity(activity.id)"
+                @click="openDeleteModal(activity.id)"
                   class="px-3 py-1 bg-red text-white rounded-md hover:bg-red-600"
                 >
                   <svg
@@ -250,8 +311,6 @@ watch(() => activitiesStore.getActivities, (newActivities) => {
           </tr>
         </tbody>
       </table>
-      
-
     </div>
   </div>
 </template>
