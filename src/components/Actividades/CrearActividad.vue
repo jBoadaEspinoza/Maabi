@@ -7,106 +7,111 @@
 
   >
     <!-- Modal Content -->
-    <div class="bg-white p-6 rounded-lg w-203 max-h-[90vh] relative overflow-auto" 
-    style="height: 70%;"
+    <div class="bg-white p-6 rounded-lg  max-h-[90vh] relative overflow-auto" 
+    style="height: 70%; width: 60%;"
     @click.stop>
       <DefaultCard cardTitle="Crear Actividades">
         <!-- Modal Body -->
-        <div class="flex flex-col gap-5.5 p-6.5">
-          <!-- Nombre en Español -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-              Nombre (Español)
-            </label>
-            <input
-              v-model="actividad.name_es"
-              type="text"
-              placeholder="Nombre en Español"
-              class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+         <!-- Modal Body -->
+         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+          <!-- Column 1 -->
+          <div class="flex flex-col gap-5.5">
+            <!-- Nombre en Español -->
+            <div>
+              <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+                Nombre (Español)
+              </label>
+              <input
+                v-model="actividad.name_es"
+                type="text"
+                placeholder="Nombre en Español"
+                class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              />
+            </div>
+
+            <!-- Nombre en Inglés -->
+            <div>
+              <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+                Nombre (Inglés)
+              </label>
+              <input
+                v-model="actividad.name_en"
+                type="text"
+                placeholder="Nombre en Inglés"
+                class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              />
+            </div>
+
+            <!-- Descripción en Español -->
+            <div>
+              <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+                Descripción (Español)
+              </label>
+              <textarea
+                v-model="actividad.description_es"
+                placeholder="Descripción en Español"
+                rows="4"
+                class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              ></textarea>
+            </div>
+
+            <!-- Descripción en Inglés -->
+            <div>
+              <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+                Descripción (Inglés)
+              </label>
+              <textarea
+                v-model="actividad.description_en"
+                placeholder="Descripción en Inglés"
+                rows="4"
+                class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Column 2 -->
+          <div class="flex flex-col gap-5.5">
+            <!-- Lugar -->
+            <SelectGroup
+              :options="places.map((place) => ({ value: place.id, text: place.denomination_long }))"
+              v-model="selectedPlaceId"
+              label="Lugar"
+              @update:modelValue="handlePlaceChange"
             />
-          </div>
 
-          <!-- Nombre en Inglés -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-              Nombre (Inglés)
-            </label>
-            <input
-              v-model="actividad.name_en"
-              type="text"
-              placeholder="Nombre en Inglés"
-              class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+            <!-- Tipo de Actividad -->
+            <SelectGroup
+              :options="
+                activityTypes.map((type) => ({ value: type.id, text: type.singular_denomination_es }))
+              "
+              v-model="selectedActivityTypeId"
+              label="Tipo de Actividad"
+              @update:modelValue="handleActivityTypeChange"
             />
+
+            <!-- Traditional -->
+            <div>
+              <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+                Traditional
+              </label>
+              <input
+                v-model="actividad.traditional"
+                type="checkbox"
+                class="rounded border-stroke bg-transparent text-primary focus:ring-0 dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+              />
+            </div>
+
+            <!-- Interests -->
+            <div>
+              <MultiSelect
+                :options="interests"
+                label="Intereses"
+                valueKey="id"
+                textKey="denomination_es"
+                @update:selected="handleSelectedChange"
+              />
+            </div>
           </div>
-
-          <!-- Descripción en Español -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-              Descripción (Español)
-            </label>
-            <textarea
-              v-model="actividad.description_es"
-              placeholder="Descripción en Español"
-              rows="4"
-              class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-            ></textarea>
-          </div>
-
-          <!-- Descripción en Inglés -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-              Descripción (Inglés)
-            </label>
-            <textarea
-              v-model="actividad.description_en"
-              placeholder="Descripción en Inglés"
-              rows="4"
-              class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-            ></textarea>
-          </div>
-
-          <SelectGroup
-            :options="places.map((place) => ({ value: place.id, text: place.denomination_long }))"
-            v-model="selectedPlaceId"
-            label="Lugar"
-            @update:modelValue="handlePlaceChange"
-          />
-
-          <!-- Activity Types -->
-          <SelectGroup
-            :options="
-              activityTypes.map((type) => ({ value: type.id, text: type.singular_denomination_es }))
-            "
-            v-model="selectedActivityTypeId"
-            label="Tipo de Actividad"
-            @update:modelValue="handleActivityTypeChange"
-          />
-
-          <!-- Traditional -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-              Traditional
-            </label>
-            <input
-              v-model="actividad.traditional"
-              type="checkbox"
-              class="rounded border-stroke bg-transparent text-primary focus:ring-0 dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-            />
-          </div>
-
-       
-       
-          <!-- Interests -->
-          <div>
-            <MultiSelect
-              :options="interests"
-              label="Intereses"
-              valueKey="id"
-              textKey="denomination_es"
-              @update:selected="handleSelectedChange"
-            />
-          </div>
-
         </div>
       </DefaultCard>
       <!-- Actions -->

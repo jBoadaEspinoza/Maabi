@@ -1,20 +1,31 @@
 <script setup lang="ts">
-import ActividadesService from '@/services/actividades/ActividadesService'
-import { useAuthStore } from '@/stores/auth/authStore'
-import type { Actividad } from '@/types/Actividad'
-import type { Interes } from '@/types/Interes'
-import { onMounted, ref, watch } from 'vue'
-import CrearActividad from './CrearActividad.vue'
-import InteresesModal from './InteresesModal.vue' // Importar el nuevo componente
-import type { TipoActividad } from '@/types/TipoActividad'
-import { actividadStore } from '@/stores/Actividades/actividadStore'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 import DataTable from 'datatables.net-vue3'
 import DataTablesLib from 'datatables.net'
-import type { Lugar } from '@/types/Lugar'
-import LugarService from '@/services/lugares/LugarService'
+
+import { useAuthStore } from '@/stores/auth/authStore'
+
+import { onMounted, ref, watch } from 'vue'
+import { actividadStore } from '@/stores/Actividades/actividadStore'
+
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue'
+import InteresesModal from './InteresesModal.vue'
+import HorariosModal from './HorariosModal.vue'
+import PreciosModal from './PreciosModal.vue'
+
+import HorariosService from '@/services/horarios/HorariosService'
+import ActividadesService from '@/services/actividades/ActividadesService'
+import LugarService from '@/services/lugares/LugarService'
+
+import type { Horario } from '@/types/Horario'
+import type { Lugar } from '@/types/Lugar'
+import type { Actividad } from '@/types/Actividad'
+import type { Interes } from '@/types/Interes'
+import type { TipoActividad } from '@/types/TipoActividad'
+import type { Precio } from '@/types/Precio'
+import PrecioService from '@/services/precios/PrecioService'
+
 DataTable.use(DataTablesLib)
 
 const activities = ref<Actividad[]>([])
@@ -29,6 +40,13 @@ const places = ref<Lugar[]>([])
 // Control del modal de intereses
 const isInterestsModalOpen = ref(false)
 const selectedInterests = ref<Interes[]>([]) // Almacena los intereses seleccionados para mostrar en el modal
+
+// Reactive state for modal and departures
+const isHorariosModalOpen = ref(false)
+const departures = ref<Horario[]>([])
+
+const precios = ref<Precio[]>([])
+const isPricesModalOpen = ref(false)
 
 const fetchActivities = async () => {
   //console.log(authStore.getToken)
@@ -120,6 +138,40 @@ const confirmDelete = async () => {
     }
   }
 }
+// Close the modal
+const closeHorariosModal = () => {
+  isHorariosModalOpen.value = false
+}
+
+// Method to fetch departures
+const fetchDepartures = async (activityId: string) => {
+  try {
+    const result = await HorariosService.getAllDepartures(
+      authStore.getToken,
+      undefined,
+      undefined,
+      'ASC',
+      activityId
+    )
+    departures.value = result // Store fetched departures
+    isHorariosModalOpen.value = true // Open the modal
+    console.log(result) // Print the result to the console
+  } catch (err) {
+    console.error('Error fetching departures:', err)
+  }
+}
+
+// Method to fetch prices
+const fetchPrices = async (activityId: string) => {
+  try {
+    const result = await PrecioService.getAllPrices(authStore.getToken, activityId)
+    precios.value = result // Store fetched prices
+    isPricesModalOpen.value = true // Open the modal
+    console.log(result) // Print the result to the console
+  } catch (err) {
+    console.error('Error fetching prices:', err)
+  }
+}
 
 onMounted(() => {
   fetchActivities()
@@ -146,6 +198,9 @@ watch(
       :interests="selectedInterests"
       @close="closeInterestsModal"
     />
+    <PreciosModal :show="isPricesModalOpen" :precios="precios" @close="isPricesModalOpen = false" />
+
+    <HorariosModal :show="isHorariosModalOpen" :horarios="departures" @close="closeHorariosModal" />
     <!-- Modal de confirmación para eliminar una actividad -->
     <ConfirmDeleteModal
       :isOpen="isDeleteModalOpen"
@@ -237,16 +292,15 @@ watch(
               </p>
             </td>
 
-            <!-- Types Column -->
+            <!-- Precios Column -->
 
             <td class="py-5 px-4">
               <p class="text-black dark:text-white">{{ getTypeName(activity.type_id) }}</p>
             </td>
             <td class="py-5 px-4">
               <button
-                v-if="activity.interests.length > 0"
+                @click="fetchPrices(activity.id)"
                 class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
-                @click="openInterestsModal(activity.interests)"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -261,11 +315,12 @@ watch(
                 </svg>
               </button>
             </td>
+            <!-- Horarios Column -->
+
             <td class="py-5 px-4">
               <button
-                v-if="activity.interests.length > 0"
                 class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
-                @click="openInterestsModal(activity.interests)"
+                @click="fetchDepartures(activity.id)"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
