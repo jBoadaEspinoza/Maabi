@@ -53,7 +53,6 @@ class PrecioService {
     }
   }
 
-
   /**
    * Crea un nuevo precio para una actividad turística.
    * @param token - Token de autorización Bearer.
@@ -69,7 +68,7 @@ class PrecioService {
     activityId: string,
     typeId: number = 1,
     currency: string = 'USD'
-  ): Promise<Precio> {
+  ): Promise<any> {
     try {
       const response = await axiosInstance.post(
         '/prices',
@@ -77,7 +76,7 @@ class PrecioService {
           amount,
           activity_id: activityId,
           type_id: typeId,
-          currency,
+          currency
         },
         {
           headers: {
@@ -88,13 +87,49 @@ class PrecioService {
       )
 
       // Retorna los datos del precio creado
-      return response.data?.response?.data as Precio
+      return response
     } catch (error) {
       console.error('Error creating price:', error)
       throw error
     }
   }
-  
+
+  /**
+   * Actualiza el monto y la moneda de un precio.
+   * @param token - Token de autorización Bearer.
+   * @param id - ID del precio a actualizar (obligatorio).
+   * @param amount - Nuevo monto del precio (obligatorio).
+   * @param currency - Nueva moneda del precio (obligatorio, por defecto USD).
+   * @returns - Promesa que se resuelve con la respuesta del servidor.
+   */
+  static async updateAmountAndCurrency(
+    token: string,
+    id: string,
+    amount: number,
+    currency: string = 'USD'
+  ): Promise<any> {
+    try {
+      const response = await axiosInstance.post(
+        `/prices/${id}/updateAmountAndCurrency`,
+        {
+          amount,
+          currency
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      // Retorna la respuesta del servidor
+      return response
+    } catch (error) {
+      console.error('Error updating price amount and currency:', error)
+      throw error
+    }
+  }
 }
 
 export default PrecioService

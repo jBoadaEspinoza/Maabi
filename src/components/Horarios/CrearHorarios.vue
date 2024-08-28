@@ -32,7 +32,7 @@
         </button>
         <button
           type="button"
-          class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md hover:bg-opacity-90 ml-2"
+          class="mt-4 px-4 py-2 bg-black text-white rounded-md hover:bg-opacity-90 ml-2"
           @click="$emit('close')"
         >
           Cancelar

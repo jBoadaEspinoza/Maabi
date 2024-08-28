@@ -10,8 +10,8 @@
     >
       <div class="flex items-center mb-4">
         <h3 class="text-xl font-semibold text-black dark:text-white">Intereses</h3>
-        <button class="ml-6 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">
-          Agregar Nuevo Interés
+        <button class="ml-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+          Nuevo Interés
         </button>
       </div>
       <div class="max-w-full overflow-x-auto">

@@ -11,6 +11,8 @@ import { actividadStore } from '@/stores/Actividades/actividadStore'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 import ConfimrRestoreModal from './ConfimrRestoreModal.vue'
+import type { Lugar } from '@/types/Lugar'
+import LugarService from '@/services/lugares/LugarService'
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
 const activitiesStore = actividadStore()
@@ -62,6 +64,14 @@ const fetchActivityTypes = async () => {
   }
 }
 
+const fetchPlaces = async () => {
+  try {
+    places.value = await LugarService.getAllPlaces(authStore.token)
+    console.log(places.value)
+  } catch (error) {
+    console.error('Error fetching places:', error)
+  }
+}
 
 const getTypeName = (typeId: string) => {
   const type = activityTypes.value.find((t) => t.id === typeId)
@@ -83,7 +93,9 @@ const confirmDelete = async () => {
   if (activityToDelete.value) {
     try {
       await ActividadesService.restaurarActividad(authStore.token, activityToDelete.value)
-      activities.value = activities.value.filter((activity) => activity.id !== activityToDelete.value)
+      activities.value = activities.value.filter(
+        (activity) => activity.id !== activityToDelete.value
+      )
       toast.success('La actividad ha sido restaurada exitosamente.')
     } catch (error) {
       console.error('Failed to delete activity', error)
@@ -93,6 +105,15 @@ const confirmDelete = async () => {
     }
   }
 }
+
+const places = ref<Lugar[]>([])
+
+
+const getPlaceName = (placeId: string) => {
+  const place = places.value.find((p) => p.id === placeId)
+  return place ? place.denomination_long.toUpperCase() : 'Unknown'
+}
+
 // Watch for changes in the store's activities and update local ref
 watch(
   () => activitiesStore.getActivities,
@@ -105,6 +126,7 @@ watch(
 onMounted(() => {
   fetchActivities()
   fetchActivityTypes()
+  fetchPlaces()
 })
 </script>
 
@@ -138,7 +160,9 @@ onMounted(() => {
               Tradicional
             </th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Intereses</th>
-            <th class="py-4 px-4 font-medium text-black dark:text-white">Tipos</th>
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Lugar</th>
+
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Tipo</th>
 
             <th class="py-4 px-4 font-medium text-black dark:text-white">Acciones</th>
           </tr>
@@ -149,6 +173,18 @@ onMounted(() => {
             <td class="py-5 px-4">
               {{ index + 1 }}
             </td>
+            <!-- Lugar Column -->
+            <td class="py-5 px-4">
+              <p class="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium">
+                {{ getPlaceName(activity.place_id) }}
+              </p>
+            </td>
+            <!-- Types Column -->
+
+            <td class="py-5 px-4">
+              <p class="text-black dark:text-white">{{ getTypeName(activity.type_id) }}</p>
+            </td>
+
             <td class="py-5 px-4 pl-9 xl:pl-11">
               <h5 class="font-medium text-black dark:text-white">
                 {{ activity.name_en.toUpperCase() }} / {{ activity.name_es.toUpperCase() }}
@@ -180,7 +216,7 @@ onMounted(() => {
                 {{ activity.traditional ? 'Si' : 'No' }}
               </p>
             </td>
-         
+
             <!-- Interests Column -->
             <td class="py-5 px-4">
               <button
@@ -202,19 +238,12 @@ onMounted(() => {
               </button>
             </td>
 
-            <!-- Types Column -->
-
-            <td class="py-5 px-4">
-              <p class="text-black dark:text-white">{{ getTypeName(activity.type_id) }}</p>
-            </td>
-
             <!-- Actions Column -->
             <td class="py-5 px-4">
               <div class="flex space-x-2">
-               
                 <!-- Restaurar Button -->
                 <button
-                @click="openDeleteModal(activity.id)"
+                  @click="openDeleteModal(activity.id)"
                   class="px-3 py-1 bg-red text-white rounded-md hover:bg-red-600"
                 >
                   <svg

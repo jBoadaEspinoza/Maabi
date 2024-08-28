@@ -237,6 +237,9 @@ watch(
           <tr class="bg-gray-2 text-left dark:bg-meta-4">
             <!-- Índice -->
             <th class="py-4 px-4 font-medium text-black dark:text-white">#</th>
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Lugar</th>
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Tipo</th>
+
             <th class="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
               Nombre
             </th>
@@ -246,8 +249,7 @@ watch(
             <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
               Tradicional
             </th>
-            <th class="py-4 px-4 font-medium text-black dark:text-white">Lugar</th>
-            <th class="py-4 px-4 font-medium text-black dark:text-white">Tipos</th>
+         
             <th class="py-4 px-4 font-medium text-black dark:text-white">Precios</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Horarios</th>
 
@@ -261,6 +263,20 @@ watch(
             <td class="py-5 px-4">
               {{ index + 1 }}
             </td>
+
+            <!-- Lugar Column -->
+            <td class="py-5 px-4">
+              <p class="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium">
+                {{ getPlaceName(activity.place_id) }}
+              </p>
+            </td>
+
+            <!-- Tipo Column -->
+
+            <td class="py-5 px-4">
+              <p class="text-black dark:text-white">{{ getTypeName(activity.type_id) }}</p>
+            </td>
+
             <td class="py-5 px-4 pl-9 xl:pl-11">
               <h5 class="font-bold text-black dark:text-white">
                 {{ activity.name_en.toUpperCase() }} / {{ activity.name_es.toUpperCase() }}
@@ -294,18 +310,7 @@ watch(
               </p>
             </td>
 
-            <!-- Lugar Column -->
-            <td class="py-5 px-4">
-              <p class="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium">
-                {{ getPlaceName(activity.place_id) }}
-              </p>
-            </td>
-
-            <!-- Precios Column -->
-
-            <td class="py-5 px-4">
-              <p class="text-black dark:text-white">{{ getTypeName(activity.type_id) }}</p>
-            </td>
+            
             <td class="py-5 px-4">
               <button
                 @click="fetchPrices(activity.id)"

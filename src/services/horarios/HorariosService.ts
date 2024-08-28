@@ -1,6 +1,6 @@
 // src/services/DepartureService.ts
-import type { Horario } from '@/types/Horario';
-import axiosInstance from '../axiosInstance';
+import type { Horario } from '@/types/Horario'
+import axiosInstance from '../axiosInstance'
 
 class HorariosService {
   /**
@@ -29,19 +29,19 @@ class HorariosService {
         },
         params: {
           limit: limit || 10, // Por defecto, limita a 10 si no se especifica
-          skip: skip || 0,    // Por defecto, empieza desde 0 si no se especifica
+          skip: skip || 0, // Por defecto, empieza desde 0 si no se especifica
           sort: sort || 'ASC', // Por defecto, orden ascendente si no se especifica
-          a_id: activityId,    // ID de la actividad turística (obligatorio)
+          a_id: activityId, // ID de la actividad turística (obligatorio)
           active: active !== undefined ? active : true // Por defecto, activo si no se especifica
         }
-      });
+      })
 
       // Extrae los horarios del campo response.data
-      const departures = response.data?.response?.data || [];
-      return departures as Horario[];
+      const departures = response.data?.response?.data || []
+      return departures as Horario[]
     } catch (error) {
-      console.error('Error fetching departures:', error);
-      throw error;
+      console.error('Error fetching departures:', error)
+      throw error
     }
   }
 
@@ -69,6 +69,32 @@ class HorariosService {
     }
   }
 
+  /**
+   * Elimina un horario de salida (lo coloca en estado inactivo).
+   * @param token - Token de autorización Bearer.
+   * @param id - ID del horario a eliminar (obligatorio).
+   * @returns - Promesa que se resuelve con la respuesta del servidor.
+   */
+  static async deleteDeparture(token: string, id: string): Promise<any> {
+    try {
+      const response = await axiosInstance.post(
+        `/departures/${id}/sendToTrash`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      // Retorna la respuesta del servidor
+      return response.data
+    } catch (error) {
+      console.error('Error deleting departure:', error)
+      throw error
+    }
+  }
 }
 
-export default HorariosService;
+export default HorariosService
