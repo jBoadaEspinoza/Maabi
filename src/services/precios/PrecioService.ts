@@ -1,6 +1,6 @@
-import type { Precio } from '@/types/Precio';
-import axiosInstance from '../axiosInstance';
-import type { TipoPrecio } from '@/types/TipoPrecio';
+import type { Precio } from '@/types/Precio'
+import axiosInstance from '../axiosInstance'
+import type { TipoPrecio } from '@/types/TipoPrecio'
 
 class PrecioService {
   /**
@@ -19,14 +19,14 @@ class PrecioService {
         params: {
           a_id: activityId // ID de la actividad turística (obligatorio)
         }
-      });
+      })
 
       // Extrae los precios del campo response.data
-      const prices = response.data?.response?.data || [];
-      return prices as Precio[];
+      const prices = response.data?.response?.data || []
+      return prices as Precio[]
     } catch (error) {
-      console.error('Error fetching prices:', error);
-      throw error;
+      console.error('Error fetching prices:', error)
+      throw error
     }
   }
 
@@ -42,17 +42,59 @@ class PrecioService {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
-      });
+      })
 
       // Extrae los tipos de precios del campo response.data
-      const priceTypes = response.data?.response?.data || [];
-      return priceTypes as TipoPrecio[];
+      const priceTypes = response.data?.response?.data || []
+      return priceTypes as TipoPrecio[]
     } catch (error) {
-      console.error('Error fetching price types:', error);
-      throw error;
+      console.error('Error fetching price types:', error)
+      throw error
     }
   }
 
+
+  /**
+   * Crea un nuevo precio para una actividad turística.
+   * @param token - Token de autorización Bearer.
+   * @param amount - Monto del precio (obligatorio).
+   * @param activityId - ID de la actividad turística (obligatorio).
+   * @param typeId - Tipo de precio (obligatorio).
+   * @param currency - Tipo de moneda (obligatorio, por defecto USD).
+   * @returns - Promesa que se resuelve con los datos del precio creado.
+   */
+  static async createPrice(
+    token: string,
+    amount: number,
+    activityId: string,
+    typeId: number = 1,
+    currency: string = 'USD'
+  ): Promise<Precio> {
+    try {
+      const response = await axiosInstance.post(
+        '/prices',
+        {
+          amount,
+          activity_id: activityId,
+          type_id: typeId,
+          currency,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      // Retorna los datos del precio creado
+      return response.data?.response?.data as Precio
+    } catch (error) {
+      console.error('Error creating price:', error)
+      throw error
+    }
+  }
+  
 }
 
-export default PrecioService;
+export default PrecioService

@@ -160,12 +160,25 @@ const fetchDepartures = async (activityId: string) => {
     console.error('Error fetching departures:', err)
   }
 }
+const selectedActivityId = ref<string | null>(null) // Store the selected activity ID
+
+const handleDepartures = (activityId: string, activityDepartures: any[]) => {
+  if (activityDepartures && activityDepartures.length > 0) {
+    departures.value = activityDepartures // Store the provided departures
+    selectedActivityId.value = activityId // Store the activity ID
+    isHorariosModalOpen.value = true // Open the modal
+    console.log('Departures:', activityDepartures, 'Activity ID:', activityId) // Log the data
+  } else {
+    console.error('No departures available for this activity')
+  }
+}
 
 // Method to fetch prices
 const fetchPrices = async (activityId: string) => {
   try {
     const result = await PrecioService.getAllPrices(authStore.getToken, activityId)
     precios.value = result // Store fetched prices
+    selectedActivityId.value = activityId // Store the activity ID
     isPricesModalOpen.value = true // Open the modal
     console.log(result) // Print the result to the console
   } catch (err) {
@@ -198,9 +211,19 @@ watch(
       :interests="selectedInterests"
       @close="closeInterestsModal"
     />
-    <PreciosModal :show="isPricesModalOpen" :precios="precios" @close="isPricesModalOpen = false" />
+    <PreciosModal
+      :show="isPricesModalOpen"
+      :activityId="selectedActivityId"
+      :precios="precios"
+      @close="isPricesModalOpen = false"
+    />
 
-    <HorariosModal :show="isHorariosModalOpen" :horarios="departures" @close="closeHorariosModal" />
+    <HorariosModal
+      :show="isHorariosModalOpen"
+      :horarios="departures"
+      :activityId="selectedActivityId"
+      @close="closeHorariosModal"
+    />
     <!-- Modal de confirmación para eliminar una actividad -->
     <ConfirmDeleteModal
       :isOpen="isDeleteModalOpen"
@@ -223,7 +246,6 @@ watch(
             <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
               Tradicional
             </th>
-            <th class="py-4 px-4 font-medium text-black dark:text-white">Estado</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Lugar</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Tipos</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Precios</th>
@@ -271,19 +293,6 @@ watch(
                 {{ activity.traditional ? 'Si' : 'No' }}
               </p>
             </td>
-            <!-- Estado Column -->
-
-            <td class="py-5 px-4">
-              <p
-                class="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium"
-                :class="{
-                  'bg-success text-success': activity.active,
-                  'bg-danger text-danger': !activity.active
-                }"
-              >
-                {{ activity.active ? 'Active' : 'Inactive' }}
-              </p>
-            </td>
 
             <!-- Lugar Column -->
             <td class="py-5 px-4">
@@ -319,8 +328,9 @@ watch(
 
             <td class="py-5 px-4">
               <button
+                v-if="activity.departures && activity.departures.length > 0"
                 class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
-                @click="fetchDepartures(activity.id)"
+                @click="handleDepartures(activity.id, activity.departures)"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

@@ -44,6 +44,31 @@ class HorariosService {
       throw error;
     }
   }
+
+  static async crearHorario(token: string, time: string, activityId: string): Promise<any> {
+    try {
+      const response = await axiosInstance.post(
+        '/departures',
+        {
+          time: time,
+          activity_id: activityId
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      // Retorna el nuevo horario creado
+      return response.data
+    } catch (error) {
+      console.error('Error creating new horario:', error)
+      throw error
+    }
+  }
+
 }
 
 export default HorariosService;

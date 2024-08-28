@@ -5,20 +5,20 @@
     @click="handleBackgroundClick"
   >
     <div class="bg-white rounded-lg p-6 max-w-sm w-full" @click.stop>
-      <h2 class="text-xl font-bold mb-4">Confirmar Eliminación</h2>
+      <h2 class="text-xl font-bold mb-4">Confirmar Restaracion</h2>
       <p>¿Estás seguro de que deseas restaurar esta actividad?.</p>
       <div class="mt-6 flex justify-end space-x-4">
         <button
           class="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-600"
           @click="$emit('cancel')"
         >
-          Cancelar
+          No
         </button>
         <button
           class="px-4 py-2 bg-red text-white rounded-md hover:bg-red-600"
           @click="$emit('confirm')"
         >
-          Eliminar
+          Si
         </button>
       </div>
     </div>

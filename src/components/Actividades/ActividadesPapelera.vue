@@ -137,7 +137,6 @@ onMounted(() => {
             <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
               Tradicional
             </th>
-            <th class="py-4 px-4 font-medium text-black dark:text-white">Estado</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Intereses</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Tipos</th>
 
@@ -181,17 +180,7 @@ onMounted(() => {
                 {{ activity.traditional ? 'Si' : 'No' }}
               </p>
             </td>
-            <td class="py-5 px-4">
-              <p
-                class="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium"
-                :class="{
-                  'bg-success text-success': activity.active,
-                  'bg-danger text-danger': !activity.active
-                }"
-              >
-                {{ activity.active ? 'Active' : 'Inactive' }}
-              </p>
-            </td>
+         
             <!-- Interests Column -->
             <td class="py-5 px-4">
               <button
