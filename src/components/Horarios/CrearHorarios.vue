@@ -1,45 +1,45 @@
 <template>
-  <div
-    v-if="show"
-    class="fixed inset-0 bg-slate-600 bg-opacity-75 flex items-center justify-center"
-    @click="handleBackgroundClick"
-  >
-    <div
-      class="bg-white dark:bg-boxdark p-5 rounded-lg w-203 max-h-[60vh] overflow-y-auto"
-      @click.stop
-    >
-      <h3 class="text-xl font-semibold mb-4 text-black dark:text-white">Agregar Horario</h3>
-      <form @submit.prevent="handleSubmit">
-        <div class="mb-4">
-          <label for="time" class="block text-sm font-medium text-black dark:text-white mb-2">Hora (HH:MM:SS)</label>
-          <input
-            type="text"
-            id="time"
-            v-model="time"
-            @input="validateTimeFormat"
-            placeholder="HH:MM:SS"
-            class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-700 dark:text-white"
-            required
-          />
-          <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
-        </div>
-        <button
-          type="submit"
-          class="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90"
-          :disabled="!isValidTime"
-        >
-          Guardar
-        </button>
-        <button
-          type="button"
-          class="mt-4 px-4 py-2 bg-black text-white rounded-md hover:bg-opacity-90 ml-2"
-          @click="$emit('close')"
-        >
-          Cancelar
-        </button>
-      </form>
+  <h3 class="text-xl font-semibold mb-4 text-black dark:text-white">Agregar Horario</h3>
+  <form @submit.prevent="handleSubmit">
+    <div class="mb-4">
+      <label for="time" class="block text-sm font-medium text-black dark:text-white mb-2"
+        >Hora (HH:MM:SS)</label
+      >
+      <input
+        type="text"
+        id="time"
+        v-model="time"
+        @input="validateTimeFormat"
+        placeholder="HH:MM:SS"
+        class="block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-primary focus:border-primary dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+        required
+      />
+      <span v-if="errorMessage" class="text-red-500 text-sm">{{ errorMessage }}</span>
     </div>
-  </div>
+
+    <button
+      type="submit"
+      :disabled="!isValidTime"
+      class="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90 flex items-center space-x-2"
+    >
+      <span>Guardar</span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#ffffff"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+      >
+        <path
+          d="M17 21H7m10 0h.803c1.118 0 1.677 0 2.104-.218c.377-.192.683-.498.875-.874c.218-.427.218-.987.218-2.105V9.22c0-.45 0-.675-.048-.889a2 2 0 0 0-.209-.545c-.106-.19-.256-.355-.55-.682l-2.755-3.062c-.341-.378-.514-.57-.721-.708a2 2 0 0 0-.61-.271C15.863 3 15.6 3 15.075 3H6.2c-1.12 0-1.68 0-2.108.218a2 2 0 0 0-.874.874C3 4.52 3 5.08 3 6.2v11.6c0 1.12 0 1.68.218 2.107c.192.377.497.683.874.875c.427.218.987.218 2.105.218H7m10 0v-3.803c0-1.118 0-1.678-.218-2.105a2 2 0 0 0-.875-.874C15.48 14 14.92 14 13.8 14h-3.6c-1.12 0-1.68 0-2.108.218a2 2 0 0 0-.874.874C7 15.52 7 16.08 7 17.2V21m8-14H9"
+        />
+      </svg>
+    </button>
+  </form>
 </template>
 
 <script setup lang="ts">
@@ -54,13 +54,11 @@ const authStore = useAuthStore()
 
 // Define the props interface, including `activityId`
 interface Props {
-  show: boolean
   activityId: string
 }
 
 // Define the props and emits
 const props = defineProps<Props>()
-const emit = defineEmits(['close'])
 
 // Local state for the time input and error message
 const time = ref<string>('')
@@ -89,7 +87,7 @@ async function handleSubmit() {
       await HorariosService.crearHorario(authStore.getToken, time.value, props.activityId)
       // Show success toast
       toast.success('Horario creado exitosamente!')
-      
+
       // Close the modal
       emit('close')
     } catch (error) {

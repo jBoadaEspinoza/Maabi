@@ -57,7 +57,7 @@ const routes = [
     }
   },
   {
-    path: '/Actividades',
+    path: '/actividades',
     name: 'Actividades',
     component: TablesView,
     meta: {

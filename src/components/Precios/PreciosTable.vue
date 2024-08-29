@@ -69,7 +69,7 @@
   </div>
 
   <!-- Agregar Precio Modal -->
-  <Crearprecios
+  <CrearPrecioView
     :show="isAddPriceModalVisible"
     :activityId="props.activityId"
     @close="toggleAddPriceModal"
@@ -87,7 +87,7 @@ import type { Precio } from '@/types/Precio'
 import type { TipoPrecio } from '@/types/TipoPrecio'
 import PrecioService from '@/services/precios/PrecioService'
 import { useAuthStore } from '@/stores/auth/authStore'
-import Crearprecios from '../Precios/Crearprecios.vue'
+import CrearPrecioView from '@/views/Precios/CrearPrecioView.vue'
 import ActualizarPreciosView from '@/views/Precios/ActualizarPreciosView.vue'
 
 interface Props {

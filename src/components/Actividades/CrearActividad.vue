@@ -6,10 +6,26 @@
     @click="handleBackgroundClick"
 
   >
+
+   
+
     <!-- Modal Content -->
     <div class="bg-white p-6 rounded-lg  max-h-[90vh] relative overflow-auto" 
     style="height: 70%; width: 60%;"
     @click.stop>
+
+    <!-- Close button (X) in the top-right corner -->
+    <div class="sticky top-0 flex justify-end">
+        <button
+        @click="closeModal"
+        class="text-gray-500 dark:text-gray-300 hover:text-black dark:hover:text-white"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
       <DefaultCard cardTitle="Crear Actividades">
         <!-- Modal Body -->
          <!-- Modal Body -->
@@ -117,19 +133,13 @@
       <!-- Actions -->
     <!-- Fixed Actions Footer -->
     <div class="flex justify-end mt-4 p-4 sticky bottom-0 z-99">
-        <button
-          type="button"
-          @click="closeModal"
-          class="px-4 py-2 bg-zinc-700 text-white rounded-md mr-2"
-        >
-          Cerrar
-        </button>
+   
         <button
           type="submit"
           @click="submitActivity"
           class="px-4 py-2 bg-blue-600 text-white rounded-md"
         >
-          Crear
+          Guardar
         </button>
       </div>
     </div>
@@ -174,7 +184,9 @@ const actividad = ref<Actividad>({
   place_id: '',
   type_id: '',
   active: true,
-  interests: []
+  interests: [],
+  departures: [],
+  prices: []
 })
 
 const authStore = useAuthStore()
