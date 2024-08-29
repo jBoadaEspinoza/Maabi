@@ -95,6 +95,33 @@ class HorariosService {
       throw error
     }
   }
+
+  /**
+   * Restaura un horario de salida a estado activo.
+   * @param token - Token de autorización Bearer.
+   * @param id - ID del horario a restaurar (obligatorio).
+   * @returns - Promesa que se resuelve con la respuesta del servidor.
+   */
+  static async restoreDeparture(token: string, id: string): Promise<any> {
+    try {
+      const response = await axiosInstance.post(
+        `/departures/${id}/restore`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      // Retorna la respuesta del servidor
+      return response.data
+    } catch (error) {
+      console.error('Error restoring departure:', error)
+      throw error
+    }
+  }
 }
 
 export default HorariosService

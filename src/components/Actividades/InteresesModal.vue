@@ -5,9 +5,20 @@
     @click="handleBackgroundClick"
   >
     <div
-      class="bg-white dark:bg-boxdark p-5 rounded-lg w-203 max-h-[60vh] overflow-y-auto"
+      class="bg-white dark:bg-boxdark p-5 rounded-lg w-203 max-h-[60vh] overflow-y-auto relative"
       @click.stop
     >
+      <!-- Close button (X) in the top-right corner, remains sticky -->
+      <button
+        @click="$emit('close')"
+        class="sticky top-2 right-2 text-gray-500 dark:text-gray-300 hover:text-black dark:hover:text-white"
+        style="float: right;"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
       <div class="flex items-center mb-4">
         <h3 class="text-xl font-semibold text-black dark:text-white">Intereses</h3>
         <button class="ml-6 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
@@ -41,12 +52,6 @@
           </tbody>
         </table>
       </div>
-      <button
-        class="mt-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90"
-        @click="$emit('close')"
-      >
-        Cerrar
-      </button>
     </div>
   </div>
 </template>
@@ -55,7 +60,6 @@
 import type { Interes } from '@/types/Interes'
 
 interface Props {
-  show: boolean
   interests: Interes[]
 }
 const emit = defineEmits(['close'])

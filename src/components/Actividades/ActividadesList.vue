@@ -13,6 +13,10 @@ import ConfirmDeleteModal from './ConfirmDeleteModal.vue'
 import InteresesModal from './InteresesModal.vue'
 import HorariosModal from './HorariosModal.vue'
 import PreciosModal from './PreciosModal.vue'
+import HorariosView from '@/views/Horarios/HorariosView.vue'
+import PreciosView from '@/views/Precios/PreciosView.vue'
+import InteresesView from '@/views/Intereses/InteresesView.vue'
+
 
 import HorariosService from '@/services/horarios/HorariosService'
 import ActividadesService from '@/services/actividades/ActividadesService'
@@ -206,21 +210,20 @@ watch(
   <div
     class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1"
   >
-    <InteresesModal
+    <InteresesView
       :show="isInterestsModalOpen"
       :interests="selectedInterests"
       @close="closeInterestsModal"
     />
-    <PreciosModal
+    <PreciosView
       :show="isPricesModalOpen"
       :activityId="selectedActivityId"
       :precios="precios"
       @close="isPricesModalOpen = false"
     />
 
-    <HorariosModal
+    <HorariosView
       :show="isHorariosModalOpen"
-      :horarios="departures"
       :activityId="selectedActivityId"
       @close="closeHorariosModal"
     />

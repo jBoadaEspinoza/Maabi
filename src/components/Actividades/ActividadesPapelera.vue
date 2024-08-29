@@ -4,8 +4,7 @@ import { useAuthStore } from '@/stores/auth/authStore'
 import type { Actividad } from '@/types/Actividad'
 import type { Interes } from '@/types/Interes'
 import { onMounted, ref, watch } from 'vue'
-import CrearActividad from './CrearActividad.vue'
-import InteresesModal from './InteresesModal.vue' // Importar el nuevo componente
+
 import type { TipoActividad } from '@/types/TipoActividad'
 import { actividadStore } from '@/stores/Actividades/actividadStore'
 import { toast } from 'vue3-toastify'
@@ -13,6 +12,8 @@ import 'vue3-toastify/dist/index.css'
 import ConfimrRestoreModal from './ConfimrRestoreModal.vue'
 import type { Lugar } from '@/types/Lugar'
 import LugarService from '@/services/lugares/LugarService'
+import InteresesView from '@/views/Intereses/InteresesView.vue'
+
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
 const activitiesStore = actividadStore()
@@ -108,7 +109,6 @@ const confirmDelete = async () => {
 
 const places = ref<Lugar[]>([])
 
-
 const getPlaceName = (placeId: string) => {
   const place = places.value.find((p) => p.id === placeId)
   return place ? place.denomination_long.toUpperCase() : 'Unknown'
@@ -134,7 +134,7 @@ onMounted(() => {
   <div
     class="rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1"
   >
-    <InteresesModal
+    <InteresesView
       :show="isInterestsModalOpen"
       :interests="selectedInterests"
       @close="closeInterestsModal"
@@ -150,6 +150,10 @@ onMounted(() => {
           <tr class="bg-gray-2 text-left dark:bg-meta-4">
             <!-- Índice -->
             <th class="py-4 px-4 font-medium text-black dark:text-white">#</th>
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Lugar</th>
+
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Tipo</th>
+
             <th class="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
               Nombre
             </th>
@@ -160,9 +164,6 @@ onMounted(() => {
               Tradicional
             </th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Intereses</th>
-            <th class="py-4 px-4 font-medium text-black dark:text-white">Lugar</th>
-
-            <th class="py-4 px-4 font-medium text-black dark:text-white">Tipo</th>
 
             <th class="py-4 px-4 font-medium text-black dark:text-white">Acciones</th>
           </tr>
