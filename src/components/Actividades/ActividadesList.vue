@@ -17,7 +17,6 @@ import HorariosView from '@/views/Horarios/HorariosView.vue'
 import PreciosView from '@/views/Precios/PreciosView.vue'
 import InteresesView from '@/views/Intereses/InteresesView.vue'
 
-
 import HorariosService from '@/services/horarios/HorariosService'
 import ActividadesService from '@/services/actividades/ActividadesService'
 import LugarService from '@/services/lugares/LugarService'
@@ -190,52 +189,57 @@ const fetchPrices = async (activityId: string) => {
   }
 }
 
-const currentPage = ref(1);
-const rowsPerPage = ref(10); // Default rows per page
-const perPageOptions = ref([10, 20, 50, 100]); // Options for rows per page
+const currentPage = ref(1)
+const rowsPerPage = ref(10) // Fixed rows per page to 10 for display
+const perPageSelected = ref(10) // Number of activities to fetch
+const perPageOptions = ref([10, 20, 50, 100]) // Options for total rows to fetch
 
 // Pagination Computed Properties
-const totalItems = computed(() => activities.value.length);
-const totalPages = computed(() => Math.ceil(totalItems.value / rowsPerPage.value));
-const startIndex = computed(() => (currentPage.value - 1) * rowsPerPage.value);
-const endIndex = computed(() => Math.min(startIndex.value + rowsPerPage.value, totalItems.value));
+const totalItems = computed(() => activities.value.length)
+const totalPages = computed(() => Math.ceil(totalItems.value / rowsPerPage.value))
+const startIndex = computed(() => (currentPage.value - 1) * rowsPerPage.value)
+const endIndex = computed(() => Math.min(startIndex.value + rowsPerPage.value, totalItems.value))
 
-// Fetch activities with pagination
+// Fetch activities based on the selected per page value
 const fetchActivities = async () => {
   try {
-    await activitiesStore.fetchAllActivities(authStore.getToken || '', true, rowsPerPage.value);
-    activities.value = activitiesStore.getActivities(); // Update local ref with store data
-  } catch (error) {
-    console.error('Failed to fetch activities', error);
-  }
-};
+    await activitiesStore.fetchAllActivities(authStore.getToken || '', true, perPageSelected.value);
 
-// Change the number of rows per page
+    activities.value = activitiesStore.getActivities
+  } catch (error) {
+    console.error('Failed to fetch activities', error)
+  }
+}
+
+// Change the number of activities fetched based on user selection
 const onRowsPerPageChange = () => {
-  currentPage.value = 1; // Reset to the first page
-  fetchActivities(); // Fetch new activities based on the new rows per page
-};
+  currentPage.value = 1 // Reset to the first page
+  fetchActivities() // Fetch new activities based on the new per page value
+}
 
 // Navigate to the previous page
 const prevPage = () => {
   if (currentPage.value > 1) {
-    currentPage.value--;
-    fetchActivities(); // Fetch activities for the new page
+    currentPage.value--
+    fetchActivities() // Fetch activities for the new page
   }
-};
+}
 
 // Navigate to the next page
 const nextPage = () => {
   if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    fetchActivities(); // Fetch activities for the new page
+    currentPage.value++
+    fetchActivities() // Fetch activities for the new page
   }
-};
+}
 
-// Watch for changes in rowsPerPage and currentPage
-watch(rowsPerPage, fetchActivities);
+// Watch for changes in perPageSelected and currentPage
+watch(perPageSelected, fetchActivities)
 
-
+// Computed property to get the current page activities
+const paginatedActivities = computed(() => {
+  return activities.value.slice(startIndex.value, endIndex.value)
+})
 onMounted(() => {
   fetchActivities()
   fetchActivityTypes()
@@ -298,7 +302,7 @@ watch(
             <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
               Tradicional
             </th>
-         
+
             <th class="py-4 px-4 font-medium text-black dark:text-white">Precios</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Horarios</th>
 
@@ -307,7 +311,7 @@ watch(
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(activity, index) in activities" :key="activity.id">
+          <tr v-for="(activity, index) in paginatedActivities" :key="activity.id">
             <!-- Índice -->
             <td class="py-5 px-4">
               {{ index + 1 }}
@@ -359,7 +363,6 @@ watch(
               </p>
             </td>
 
-            
             <td class="py-5 px-4">
               <button
                 @click="fetchPrices(activity.id)"
@@ -467,14 +470,22 @@ watch(
       </table>
     </div>
 
-      <!-- Pagination -->
-    <div class="flex justify-between items-center mt-4">
+    <!-- Pagination Controls -->
+    <div class="flex justify-between items-center mt-4 mb-4">
       <div class="flex items-center">
         <label for="rowsPerPage" class="mr-2">Rows per page:</label>
-        <select id="rowsPerPage" v-model="rowsPerPage" @change="onRowsPerPageChange" class="border rounded-md px-2 py-1">
-          <option v-for="option in perPageOptions" :key="option" :value="option">{{ option }}</option>
+        <select
+          id="rowsPerPage"
+          v-model="perPageSelected"
+          @change="onRowsPerPageChange"
+          class="border rounded-md px-2 py-1"
+        >
+          <option v-for="option in perPageOptions" :key="option" :value="option">
+            {{ option }}
+          </option>
         </select>
       </div>
+      
       <div>
         <span>{{ startIndex + 1 }}–{{ endIndex }} of {{ totalItems }}</span>
         <button
@@ -493,6 +504,5 @@ watch(
         </button>
       </div>
     </div>
-
   </div>
 </template>
