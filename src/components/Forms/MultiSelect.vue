@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, defineProps, defineEmits, onMounted } from 'vue'
+import { ref, defineEmits, onMounted } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 
 // Define a generic type for options
@@ -79,14 +79,14 @@ const selectedValues = () => {
 </script>
 
 <template>
-  <div class="relative z-50">
+  <div class="relative ">
     <label class="mb-3 block text-sm font-medium text-black dark:text-white">
       {{ props.label }}
     </label>
     <div>
       <div class="flex flex-col items-center">
         <input name="values" type="hidden" :value="JSON.stringify(selectedValues())" />
-        <div class="relative z-20 inline-block w-full">
+        <div class="relative inline-block w-full">
           <div class="relative flex flex-col items-center">
             <div @click="open" class="w-full">
               <div

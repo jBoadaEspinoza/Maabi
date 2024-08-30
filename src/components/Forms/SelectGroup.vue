@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, ref } from 'vue';
+import { defineEmits, ref } from 'vue';
 
 interface Option {
   value: string;

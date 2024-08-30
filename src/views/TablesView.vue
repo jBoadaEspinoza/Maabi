@@ -4,6 +4,8 @@ import BreadcrumbDefault from '@/components/Breadcrumbs/BreadcrumbDefault.vue'
 import TableOne from '@/components/Tables/TableOne.vue'
 import TableTwo from '@/components/Tables/TableTwo.vue'
 import TableThree from '@/components/Tables/TableThree.vue'
+import TestTable from '@/components/DataTable/TestTable.vue'
+
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import ActividadesList from '@/components/Actividades/ActividadesList.vue'
 import ActividadesPapelera from '@/components/Actividades/ActividadesPapelera.vue'
@@ -116,6 +118,10 @@ const toggleView = () => {
       <ActividadesList v-if="!showPapelera" />
       <ActividadesPapelera v-else />
       <CrearActividad :show="isModalOpen" :actividad="actividadData" @close="closeModal" />
+      <TestTable/>
+
+    
+
     </div>
   </DefaultLayout>
 </template>

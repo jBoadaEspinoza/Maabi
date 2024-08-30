@@ -6,7 +6,7 @@ import DataTablesLib from 'datatables.net'
 
 import { useAuthStore } from '@/stores/auth/authStore'
 
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { actividadStore } from '@/stores/Actividades/actividadStore'
 
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue'
@@ -52,7 +52,7 @@ const departures = ref<Horario[]>([])
 const precios = ref<Precio[]>([])
 const isPricesModalOpen = ref(false)
 
-const fetchActivities = async () => {
+const fetchActivities2 = async () => {
   //console.log(authStore.getToken)
   try {
     await activitiesStore.fetchAllActivities(authStore.getToken || '')
@@ -189,6 +189,52 @@ const fetchPrices = async (activityId: string) => {
     console.error('Error fetching prices:', err)
   }
 }
+
+const currentPage = ref(1);
+const rowsPerPage = ref(10); // Default rows per page
+const perPageOptions = ref([10, 20, 50, 100]); // Options for rows per page
+
+// Pagination Computed Properties
+const totalItems = computed(() => activities.value.length);
+const totalPages = computed(() => Math.ceil(totalItems.value / rowsPerPage.value));
+const startIndex = computed(() => (currentPage.value - 1) * rowsPerPage.value);
+const endIndex = computed(() => Math.min(startIndex.value + rowsPerPage.value, totalItems.value));
+
+// Fetch activities with pagination
+const fetchActivities = async () => {
+  try {
+    await activitiesStore.fetchAllActivities(authStore.getToken || '', true, rowsPerPage.value);
+    activities.value = activitiesStore.getActivities(); // Update local ref with store data
+  } catch (error) {
+    console.error('Failed to fetch activities', error);
+  }
+};
+
+// Change the number of rows per page
+const onRowsPerPageChange = () => {
+  currentPage.value = 1; // Reset to the first page
+  fetchActivities(); // Fetch new activities based on the new rows per page
+};
+
+// Navigate to the previous page
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    fetchActivities(); // Fetch activities for the new page
+  }
+};
+
+// Navigate to the next page
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    fetchActivities(); // Fetch activities for the new page
+  }
+};
+
+// Watch for changes in rowsPerPage and currentPage
+watch(rowsPerPage, fetchActivities);
+
 
 onMounted(() => {
   fetchActivities()
@@ -420,5 +466,33 @@ watch(
         </tbody>
       </table>
     </div>
+
+      <!-- Pagination -->
+    <div class="flex justify-between items-center mt-4">
+      <div class="flex items-center">
+        <label for="rowsPerPage" class="mr-2">Rows per page:</label>
+        <select id="rowsPerPage" v-model="rowsPerPage" @change="onRowsPerPageChange" class="border rounded-md px-2 py-1">
+          <option v-for="option in perPageOptions" :key="option" :value="option">{{ option }}</option>
+        </select>
+      </div>
+      <div>
+        <span>{{ startIndex + 1 }}–{{ endIndex }} of {{ totalItems }}</span>
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 1"
+          class="mx-2 px-3 py-1 bg-gray-200 rounded-md"
+        >
+          Anterior
+        </button>
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+          class="px-3 py-1 bg-gray-200 rounded-md"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
+
   </div>
 </template>

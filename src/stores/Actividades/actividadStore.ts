@@ -17,20 +17,32 @@ export const actividadStore = defineStore('activities', {
   }),
 
   actions: {
-    async fetchAllActivities(token: string, active?: boolean) {
-      this.loading = true
-      this.error = null
-
+    async fetchAllActivities(
+      token: string, 
+      active?: boolean, 
+      limit: number = 10, 
+      skip: number = 0, 
+      sort: 'ASC' | 'DESC' = 'ASC'
+    ) {
+      this.loading = true;
+      this.error = null;
+    
       try {
-        // Llama al servicio con el parámetro `active`
-        const response = await ActividadesService.getAllActivities(token, 20, 0, 'ASC', active)
-        this.activities = response // Asigna la respuesta al estado activities
-        console.log('Activities fetched successfully:', response)
+        // Call the service method with the necessary parameters
+        const response = await ActividadesService.getAllActivities(token, limit, skip, sort, active);
+        
+        // Update the store state with the fetched activities
+        this.activities = response;
+        
+        // Log success message if needed
+        console.log('Activities fetched successfully:', response);
       } catch (error: any) {
-        this.error = error.response?.data?.message || 'Error fetching activities'
-        console.error('Error fetching activities:', error)
+        // Capture and log any errors
+        this.error = error.response?.data?.message || 'Error fetching activities';
+        console.error('Error fetching activities:', error);
       } finally {
-        this.loading = false
+        // Ensure loading is set to false regardless of the outcome
+        this.loading = false;
       }
     }
   },

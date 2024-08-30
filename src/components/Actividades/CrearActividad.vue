@@ -118,7 +118,6 @@
             </div>
 
             <!-- Interests -->
-            <div>
               <MultiSelect
                 :options="interests"
                 label="Intereses"
@@ -126,13 +125,12 @@
                 textKey="denomination_es"
                 @update:selected="handleSelectedChange"
               />
-            </div>
           </div>
         </div>
       </DefaultCard>
       <!-- Actions -->
     <!-- Fixed Actions Footer -->
-    <div class="flex justify-end mt-4 p-4 sticky bottom-0 z-99">
+    <div class="flex justify-end mt-4 p-4 sticky bottom-0">
    
         <button
           type="submit"
