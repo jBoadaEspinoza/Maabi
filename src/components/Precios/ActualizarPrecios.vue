@@ -67,7 +67,7 @@ interface Props {
 
 // Define the props and emits
 const props = defineProps<Props>()
-const emit = defineEmits(['close'])
+  const emit = defineEmits(['close', 'price-updated']) // Add 'price-updated' emit
 
 // Local state for the form inputs
 const amount = ref<number | null>(null)
@@ -87,14 +87,19 @@ async function handleSubmit() {
         amount.value,
         currency.value
       )
-
       console.log(response)
 
       // Show success toast
       toast.success('Precio actualizado exitosamente!')
 
       // Optionally, emit an event to notify the parent component
+      emit('price-updated') 
+
       emit('close')
+
+
+     // Emit the event when price is updated
+
     } catch (error) {
       console.error('Error updating price:', error)
       // Show error toast

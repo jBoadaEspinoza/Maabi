@@ -59,6 +59,7 @@ interface Props {
 
 // Define the props and emits
 const props = defineProps<Props>()
+const emit = defineEmits(['departure-created']); // Definir los eventos que el componente puede emitir
 
 // Local state for the time input and error message
 const time = ref<string>('')
@@ -88,8 +89,7 @@ async function handleSubmit() {
       // Show success toast
       toast.success('Horario creado exitosamente!')
 
-      // Close the modal
-      emit('close')
+      emit('departure-created');
     } catch (error) {
       console.error('Error saving new horario:', error)
       // Show error toast
@@ -98,8 +98,5 @@ async function handleSubmit() {
   }
 }
 
-// Handle background click to close the modal
-function handleBackgroundClick() {
-  emit('close')
-}
+
 </script>

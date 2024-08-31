@@ -86,7 +86,7 @@ interface Props {
 
 // Define the props and emits
 const props = defineProps<Props>()
-const emit = defineEmits(['close'])
+const emit = defineEmits(['close', 'price-created']); // Definir los eventos que el componente puede emitir
 
 // Local state for the form inputs
 const amount = ref<number | null>(null)
@@ -131,13 +131,8 @@ async function handleSubmit() {
       toast.success('Precio creado exitosamente!')
 
       // Optionally, you could also emit the new price to the parent component if needed
-      // emit('price-created', newPrice)
-      console.log(
-        amount.value,
-        props.activityId,
-        typeId.value, // Send the selected typeId
-        currency.value
-      )
+      emit('price-created');
+
       // Close the modal
       //emit('close')
     } catch (error) {

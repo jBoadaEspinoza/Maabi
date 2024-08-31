@@ -3,7 +3,8 @@
     <h3 class="text-xl font-semibold text-black dark:text-white">Precios</h3>
 
     <button
-      class="ml-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90 flex items-center space-x-2"
+    v-if="precios.length < 3"
+    class="ml-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90 flex items-center space-x-2"
       @click="toggleAddPriceModal"
     >
       <span>Nuevo Precio</span>
@@ -73,11 +74,15 @@
     :show="isAddPriceModalVisible"
     :activityId="props.activityId"
     @close="toggleAddPriceModal"
+    @price-created="fetchPrices"
+
+    
   />
   <ActualizarPreciosView
     :show="isUpdatePriceModalVisible"
     :priceId="currentPriceId"
     @close="toggleUpdatePriceModal"
+    @price-updated="handlePriceUpdated"
   />
 </template>
 
@@ -91,7 +96,6 @@ import CrearPrecioView from '@/views/Precios/CrearPrecioView.vue'
 import ActualizarPreciosView from '@/views/Precios/ActualizarPreciosView.vue'
 
 interface Props {
-  precios: Precio[]
   activityId: string
 }
 
@@ -102,6 +106,21 @@ const authStore = useAuthStore()
 const isAddPriceModalVisible = ref(false) // State for modal visibility
 const isUpdatePriceModalVisible = ref(false)
 const currentPriceId = ref<string | null>(null)
+const precios = ref<Precio[]>([])
+
+
+// Method to fetch prices
+async function fetchPrices() {
+  console.log("fetchaprices")
+  try {
+    const result = await PrecioService.getAllPrices(authStore.getToken, props.activityId)
+    precios.value = result // Store fetched prices
+    console.log(result) // Print the result to the console
+  } catch (err) {
+    console.error('Error fetching prices:', err)
+  }
+}
+
 
 async function fetchPriceTypes() {
   try {
@@ -132,7 +151,14 @@ function openUpdatePriceModal(priceId: string) {
   isUpdatePriceModalVisible.value = true // Open the modal
 }
 
+function handlePriceUpdated() {
+  console.log('Price updated event received') // Para verificar si el evento se recibe
+  fetchPrices()
+}
+
 onMounted(() => {
+  fetchPrices()
   fetchPriceTypes()
+
 })
 </script>

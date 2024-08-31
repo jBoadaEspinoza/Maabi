@@ -11,6 +11,7 @@ export interface Actividad {
     description_en: string;
     created_utc: number;
     traditional: boolean;
+    origin_id: string;
     place_id: string;
     type_id: string;
     active: boolean;

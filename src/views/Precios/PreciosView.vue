@@ -2,7 +2,7 @@
   <!-- Uso del ModalLayout -->
   <ModalLayout :show="props.show" title="Horarios" @close="emit('close')">
     <!-- Contenido del modal con el componente HorariosTable -->
-    <PreciosTable :precios="props.precios" :activityId="props.activityId" />
+    <PreciosTable :activityId="props.activityId" />
   </ModalLayout>
 </template>
 
@@ -14,7 +14,6 @@ import PreciosTable from '@/components/Precios/PreciosTable.vue'
 import type { Precio } from '@/types/Precio'
 interface Props {
   show: boolean
-  precios: Precio[]
   activityId: string
 }
 

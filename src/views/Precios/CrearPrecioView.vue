@@ -1,8 +1,8 @@
 <template>
     <!-- Uso del ModalLayout -->
-    <ModalLayout :show="props.show" title="Horarios" @close="emit('close')">
+    <ModalLayout :show="props.show" title="Horarios" @close="emit('close')"  >
       <!-- Contenido del modal con el componente HorariosTable -->
-      <Crearprecios :activityId="props.activityId" />
+      <Crearprecios :activityId="props.activityId" @price-created="handlePriceCreeated"/>
     </ModalLayout>
   </template>
   
@@ -15,9 +15,11 @@
     activityId: string
   }
   
-  const emit = defineEmits(['close'])
+  const emit = defineEmits(['close', 'price-created']); // Definir los eventos que el componente puede emitir
   const props = defineProps<Props>()
   
-  
+  function handlePriceCreeated() {
+  emit('price-created')
+}
   </script>
   

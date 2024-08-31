@@ -268,7 +268,6 @@ watch(
     <PreciosView
       :show="isPricesModalOpen"
       :activityId="selectedActivityId"
-      :precios="precios"
       @close="isPricesModalOpen = false"
     />
 
@@ -283,6 +282,42 @@ watch(
       @cancel="closeDeleteModal"
       @confirm="confirmDelete"
     />
+
+
+     <!-- Pagination Controls -->
+     <div class="flex justify-between items-center mt-4 mb-4">
+      <div class="flex items-center">
+        <label for="rowsPerPage" class="mr-2">Rows per page:</label>
+        <select
+          id="rowsPerPage"
+          v-model="perPageSelected"
+          @change="onRowsPerPageChange"
+          class="border rounded-md px-2 py-1"
+        >
+          <option v-for="option in perPageOptions" :key="option" :value="option">
+            {{ option }}
+          </option>
+        </select>
+      </div>
+
+      <div>
+        <span>{{ startIndex + 1 }}–{{ endIndex }} of {{ totalItems }}</span>
+        <button
+          @click="prevPage"
+          :disabled="currentPage === 1"
+          class="mx-2 px-3 py-1 bg-gray-200 rounded-md"
+        >
+          Anterior
+        </button>
+        <button
+          @click="nextPage"
+          :disabled="currentPage === totalPages"
+          class="px-3 py-1 bg-gray-200 rounded-md"
+        >
+          Siguiente
+        </button>
+      </div>
+    </div>
 
     <div class="max-w-full overflow-x-auto">
       <table class="w-full table-auto">
@@ -385,7 +420,6 @@ watch(
 
             <td class="py-5 px-4">
               <button
-                v-if="activity.departures && activity.departures.length > 0"
                 class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
                 @click="handleDepartures(activity.id, activity.departures)"
               >
@@ -405,7 +439,7 @@ watch(
             <!-- Interests Column -->
             <td class="py-5 px-4">
               <button
-                v-if="activity.interests.length > 0"
+               
                 class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
                 @click="openInterestsModal(activity.interests)"
               >
@@ -470,39 +504,6 @@ watch(
       </table>
     </div>
 
-    <!-- Pagination Controls -->
-    <div class="flex justify-between items-center mt-4 mb-4">
-      <div class="flex items-center">
-        <label for="rowsPerPage" class="mr-2">Rows per page:</label>
-        <select
-          id="rowsPerPage"
-          v-model="perPageSelected"
-          @change="onRowsPerPageChange"
-          class="border rounded-md px-2 py-1"
-        >
-          <option v-for="option in perPageOptions" :key="option" :value="option">
-            {{ option }}
-          </option>
-        </select>
-      </div>
-      
-      <div>
-        <span>{{ startIndex + 1 }}–{{ endIndex }} of {{ totalItems }}</span>
-        <button
-          @click="prevPage"
-          :disabled="currentPage === 1"
-          class="mx-2 px-3 py-1 bg-gray-200 rounded-md"
-        >
-          Anterior
-        </button>
-        <button
-          @click="nextPage"
-          :disabled="currentPage === totalPages"
-          class="px-3 py-1 bg-gray-200 rounded-md"
-        >
-          Siguiente
-        </button>
-      </div>
-    </div>
+   
   </div>
 </template>
