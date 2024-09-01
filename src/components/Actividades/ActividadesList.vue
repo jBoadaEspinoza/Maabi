@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
-import DataTable from 'datatables.net-vue3'
-import DataTablesLib from 'datatables.net'
 
 import { useAuthStore } from '@/stores/auth/authStore'
 
@@ -10,9 +8,6 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { actividadStore } from '@/stores/Actividades/actividadStore'
 
 import ConfirmDeleteModal from './ConfirmDeleteModal.vue'
-import InteresesModal from './InteresesModal.vue'
-import HorariosModal from './HorariosModal.vue'
-import PreciosModal from './PreciosModal.vue'
 import HorariosView from '@/views/Horarios/HorariosView.vue'
 import PreciosView from '@/views/Precios/PreciosView.vue'
 import InteresesView from '@/views/Intereses/InteresesView.vue'
@@ -28,8 +23,9 @@ import type { Interes } from '@/types/Interes'
 import type { TipoActividad } from '@/types/TipoActividad'
 import type { Precio } from '@/types/Precio'
 import PrecioService from '@/services/precios/PrecioService'
+import type { Origen } from '@/types/Origen'
+import OrigenesService from '@/services/origenes/OrigenesService'
 
-DataTable.use(DataTablesLib)
 
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
@@ -51,16 +47,7 @@ const departures = ref<Horario[]>([])
 const precios = ref<Precio[]>([])
 const isPricesModalOpen = ref(false)
 
-const fetchActivities2 = async () => {
-  //console.log(authStore.getToken)
-  try {
-    await activitiesStore.fetchAllActivities(authStore.getToken || '')
-    activities.value = activitiesStore.getActivities // Update local ref with store data
-    console.log(activities.value)
-  } catch (error) {
-    console.error('Failed to fetch activities', error)
-  }
-}
+const origins = ref<Origen[]>([]) // Nuevo estado para los orígenes
 
 const fetchActivityTypes = async () => {
   try {
@@ -80,6 +67,14 @@ const fetchPlaces = async () => {
   }
 }
 
+const fetchOrigins = async () => {
+  try {
+    origins.value = await OrigenesService.getAllOrigins(authStore.token)
+  } catch (error) {
+    console.error('Error fetching origins:', error)
+  }
+}
+
 // Abre el modal de intereses y carga los intereses de la actividad seleccionada
 const openInterestsModal = (interests: Interes[]) => {
   selectedInterests.value = interests
@@ -90,24 +85,16 @@ const closeInterestsModal = () => {
   isInterestsModalOpen.value = false
 }
 
-// Método para eliminar una actividad
-const deleteActivity = async (id: string) => {
-  try {
-    console.log(authStore.getToken)
 
-    const response = await ActividadesService.deleteActivity(authStore.getToken, id)
-    console.log(response)
-    activities.value = activities.value.filter((activity) => activity.id !== id)
-
-    toast.success('La actividad ha sido eliminada exitosamente.')
-  } catch (error) {
-    console.error('Failed to delete activity', error)
-  }
-}
 
 const getTypeName = (typeId: string) => {
   const type = activityTypes.value.find((t) => t.id === typeId)
   return type ? type.singular_denomination_es.toUpperCase() : 'Unknown'
+}
+
+const getOriginName = (typeId: string) => {
+  const type = origins.value.find((t) => t.id === typeId)
+  return type ? type.denomination_long.toUpperCase() : 'Unknown'
 }
 
 const getPlaceName = (placeId: string) => {
@@ -146,34 +133,13 @@ const closeHorariosModal = () => {
   isHorariosModalOpen.value = false
 }
 
-// Method to fetch departures
-const fetchDepartures = async (activityId: string) => {
-  try {
-    const result = await HorariosService.getAllDepartures(
-      authStore.getToken,
-      undefined,
-      undefined,
-      'ASC',
-      activityId
-    )
-    departures.value = result // Store fetched departures
-    isHorariosModalOpen.value = true // Open the modal
-    console.log(result) // Print the result to the console
-  } catch (err) {
-    console.error('Error fetching departures:', err)
-  }
-}
+
 const selectedActivityId = ref<string | null>(null) // Store the selected activity ID
 
 const handleDepartures = (activityId: string, activityDepartures: any[]) => {
-  if (activityDepartures && activityDepartures.length > 0) {
-    departures.value = activityDepartures // Store the provided departures
-    selectedActivityId.value = activityId // Store the activity ID
-    isHorariosModalOpen.value = true // Open the modal
-    console.log('Departures:', activityDepartures, 'Activity ID:', activityId) // Log the data
-  } else {
-    console.error('No departures available for this activity')
-  }
+  departures.value = activityDepartures // Store the provided departures
+  selectedActivityId.value = activityId // Store the activity ID
+  isHorariosModalOpen.value = true // Open the modal
 }
 
 // Method to fetch prices
@@ -203,7 +169,7 @@ const endIndex = computed(() => Math.min(startIndex.value + rowsPerPage.value, t
 // Fetch activities based on the selected per page value
 const fetchActivities = async () => {
   try {
-    await activitiesStore.fetchAllActivities(authStore.getToken || '', true, perPageSelected.value);
+    await activitiesStore.fetchAllActivities(authStore.getToken || '', true, perPageSelected.value)
 
     activities.value = activitiesStore.getActivities
   } catch (error) {
@@ -244,6 +210,7 @@ onMounted(() => {
   fetchActivities()
   fetchActivityTypes()
   fetchPlaces()
+  fetchOrigins()
 })
 
 // Watch for changes in the store's activities and update local ref
@@ -283,11 +250,10 @@ watch(
       @confirm="confirmDelete"
     />
 
-
-     <!-- Pagination Controls -->
-     <div class="flex justify-between items-center mt-4 mb-4">
+    <!-- Pagination Controls -->
+    <div class="flex justify-between items-center mt-4 mb-4">
       <div class="flex items-center">
-        <label for="rowsPerPage" class="mr-2">Rows per page:</label>
+        <label for="rowsPerPage" class="mr-2">Filas por página :</label>
         <select
           id="rowsPerPage"
           v-model="perPageSelected"
@@ -325,7 +291,9 @@ watch(
           <tr class="bg-gray-2 text-left dark:bg-meta-4">
             <!-- Índice -->
             <th class="py-4 px-4 font-medium text-black dark:text-white">#</th>
-            <th class="py-4 px-4 font-medium text-black dark:text-white">Lugar</th>
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Origen</th>
+
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Destino</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Tipo</th>
 
             <th class="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
@@ -349,7 +317,14 @@ watch(
           <tr v-for="(activity, index) in paginatedActivities" :key="activity.id">
             <!-- Índice -->
             <td class="py-5 px-4">
-              {{ index + 1 }}
+              {{ startIndex + index + 1 }}
+            </td>
+
+            <!-- Lugar Column -->
+            <td class="py-5 px-4">
+              <p class="inline-flex rounded-full bg-opacity-10 py-1 px-3 text-sm font-medium">
+                {{ getOriginName(activity.origin_id) }}
+              </p>
             </td>
 
             <!-- Lugar Column -->
@@ -439,7 +414,6 @@ watch(
             <!-- Interests Column -->
             <td class="py-5 px-4">
               <button
-               
                 class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
                 @click="openInterestsModal(activity.interests)"
               >
@@ -503,7 +477,5 @@ watch(
         </tbody>
       </table>
     </div>
-
-   
   </div>
 </template>

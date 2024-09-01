@@ -51,37 +51,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth/authStore'
 import PrecioService from '@/services/precios/PrecioService'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
+import type { Precio } from '@/types/Precio'
 
-// Access the authentication store
-const authStore = useAuthStore()
 
-// Define the props interface
 interface Props {
+  precio: Precio
   priceId: string
 }
 
-// Define the props and emits
+// Define props and emits
 const props = defineProps<Props>()
-  const emit = defineEmits(['close', 'price-updated']) // Add 'price-updated' emit
+const emit = defineEmits(['close', 'price-updated'])
 
 // Local state for the form inputs
-const amount = ref<number | null>(null)
-const currency = ref<string>('USD')
+const amount = ref<number>(props.precio.amount)
+const currency = ref<string>(props.precio.currency)
 
 // Handle form submission
 async function handleSubmit() {
   if (amount.value !== null && currency.value) {
     try {
       // Retrieve the token from the auth store
-      const token = authStore.getToken
+      const token = useAuthStore().getToken
 
       // Call the service to update the price
-      const response=await PrecioService.updateAmountAndCurrency(
+      const response = await PrecioService.updateAmountAndCurrency(
         token,
         props.priceId,
         amount.value,
@@ -92,13 +91,9 @@ async function handleSubmit() {
       // Show success toast
       toast.success('Precio actualizado exitosamente!')
 
-      // Optionally, emit an event to notify the parent component
-      emit('price-updated') 
-
+      // Emit an event to notify the parent component
+      emit('price-updated')
       emit('close')
-
-
-     // Emit the event when price is updated
 
     } catch (error) {
       console.error('Error updating price:', error)

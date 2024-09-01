@@ -31,7 +31,7 @@
             <!-- Delete Button -->
             <button
               class="px-3 py-1 bg-red text-white rounded-md hover:bg-red-600"
-              @click="deleteHorario(horario.id)"
+              @click="openDeleteModal(horario.id)"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                 <path
@@ -44,10 +44,17 @@
         </tr>
       </tbody>
     </table>
+
+    <ConfirmDeleteHorarioModal
+      :isOpen="isModalOpen"
+      @cancel="handleModalCancel"
+      @confirm="handleModalConfirm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import ConfirmDeleteHorarioModal from './ConfirmDeleteHorarioModal.vue'
 import type { Horario } from '@/types/Horario'
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth/authStore'
@@ -61,7 +68,8 @@ interface Props {
 
 const props = defineProps<Props>()
 const horarios = ref<Horario[]>([])
-
+const isModalOpen = ref(false)
+const horarioToDelete = ref<string | null>(null)
 // Function to fetch horarios
 async function fetchHorarios() {
   try {
@@ -98,6 +106,37 @@ async function deleteHorario(id: string) {
     toast.error('Error al eliminar el horario.')
   }
 }
+
+// Open the delete confirmation modal
+function openDeleteModal(id: string) {
+  horarioToDelete.value = id
+  isModalOpen.value = true
+}
+
+// Handle modal cancellation
+function handleModalCancel() {
+  isModalOpen.value = false
+  horarioToDelete.value = null
+}
+
+// Handle modal confirmation
+async function handleModalConfirm() {
+  if (horarioToDelete.value) {
+    try {
+      const token = useAuthStore().getToken;
+      await HorariosService.deleteDeparture(token, horarioToDelete.value);
+      toast.success('Horario eliminado exitosamente!');
+      fetchHorarios(); // Refresh the list after deletion
+    } catch (error) {
+      console.error('Error deleting horario:', error);
+      toast.error('Error al eliminar el horario.');
+    }
+    isModalOpen.value = false;
+    horarioToDelete.value = null;
+  }
+}
+
+
 // Fetch horarios when the component is mounted
 onMounted(() => {
   fetchHorarios()

@@ -32,89 +32,83 @@
 
       <h3 class="text-xl font-semibold mb-4 text-black dark:text-white">Agregar Actividad</h3>
       <!-- Modal Body -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
-        <!-- Column 1 -->
-        <div class="flex flex-col gap-5.5">
-          <!-- Nombre en Español -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-              Nombre (Español)
-            </label>
-            <input
-              v-model="actividad.name_es"
-              type="text"
-              placeholder="Nombre en Español"
-              class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-            />
-          </div>
 
-          <!-- Nombre en Inglés -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-              Nombre (Inglés)
-            </label>
-            <input
-              v-model="actividad.name_en"
-              type="text"
-              placeholder="Nombre en Inglés"
-              class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-            />
-          </div>
-
-          <!-- Descripción en Español -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-              Descripción (Español)
-            </label>
-            <textarea
-              v-model="actividad.description_es"
-              placeholder="Descripción en Español"
-              rows="4"
-              class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-            ></textarea>
-          </div>
-
-          <!-- Descripción en Inglés -->
-          <div>
-            <label class="mb-3 block text-sm font-medium text-black dark:text-white">
-              Descripción (Inglés)
-            </label>
-            <textarea
-              v-model="actividad.description_en"
-              placeholder="Descripción en Inglés"
-              rows="4"
-              class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
-            ></textarea>
-          </div>
+      <!-- Column 1 -->
+      <div class="flex flex-col gap-5.5">
+        <!-- Nombre en Español -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+            Nombre (Español)
+          </label>
+          <input
+            v-model="actividad.name_es"
+            type="text"
+            placeholder="Nombre en Español"
+            class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+          />
         </div>
 
+        <!-- Nombre en Inglés -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+            Nombre (Inglés)
+          </label>
+          <input
+            v-model="actividad.name_en"
+            type="text"
+            placeholder="Nombre en Inglés"
+            class="w-full rounded-lg border-[1.5px] text-black border-stroke bg-transparent py-3 px-5 font-normal outline-none transition focus:border-primary active:border-primary dark:text-white dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
+          />
+        </div>
+
+        <!-- Descripción en Español -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+            Descripción (Español)
+          </label>
+
+          <QuillEditor
+            v-model:content="actividad.description_es"
+            contentType="text"
+            placeholder="Descripción en Español"
+          />
+        </div>
+
+        <!-- Descripción en Inglés -->
+        <div>
+          <label class="mb-3 block text-sm font-medium text-black dark:text-white">
+            Descripción (Inglés)
+          </label>
+
+          <QuillEditor
+            v-model:content="actividad.description_en"
+            contentType="text"
+
+            placeholder="Descripción en Inglés"
+          />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
         <!-- Column 2 -->
         <div class="flex flex-col gap-5.5">
-          <!-- Lugar -->
-          <SelectGroup
-            :options="places.map((place) => ({ value: place.id, text: place.denomination_long }))"
-            v-model="selectedPlaceId"
-            label="Lugar"
-            @update:modelValue="handlePlaceChange"
-          />
-
-          <!-- Tipo de Actividad -->
-          <SelectGroup
-            :options="
-              activityTypes.map((type) => ({ value: type.id, text: type.singular_denomination_es }))
-            "
-            v-model="selectedActivityTypeId"
-            label="Tipo de Actividad"
-            @update:modelValue="handleActivityTypeChange"
-          />
+          <!-- Origen de Actividad -->
 
           <SelectGroup
             :options="
               origins.map((origin) => ({ value: origin.id, text: origin.denomination_long }))
             "
             v-model="selectedOriginId"
-            label="Origen"
+            label="Destino"
             @update:modelValue="handleOriginChange"
+          />
+
+          <!-- Lugar -->
+          <SelectGroup
+            :options="places.map((place) => ({ value: place.id, text: place.denomination_long }))"
+            v-model="selectedPlaceId"
+            label="Lugar"
+            @update:modelValue="handlePlaceChange"
           />
 
           <!-- Traditional -->
@@ -128,7 +122,18 @@
               class="rounded border-stroke bg-transparent text-primary focus:ring-0 dark:border-form-strokedark dark:bg-form-input dark:focus:border-primary"
             />
           </div>
+        </div>
 
+        <div class="flex flex-col gap-5.5">
+          <!-- Tipo de Actividad -->
+          <SelectGroup
+            :options="
+              activityTypes.map((type) => ({ value: type.id, text: type.singular_denomination_es }))
+            "
+            v-model="selectedActivityTypeId"
+            label="Tipo de Actividad"
+            @update:modelValue="handleActivityTypeChange"
+          />
           <!-- Interests -->
           <MultiSelect
             :options="interests"
@@ -175,6 +180,10 @@ import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 import type { Origen } from '@/types/Origen'
 import OrigenesService from '@/services/origenes/OrigenesService'
+
+import { QuillEditor } from '@vueup/vue-quill'
+import '@vueup/vue-quill/dist/vue-quill.snow.css'
+
 // Definición de las props
 const props = defineProps<{
   show: boolean
@@ -213,7 +222,6 @@ const selectedInterests = ref<Interes[]>([])
 // Activity Types
 const activityTypes = ref<TipoActividad[]>([])
 const selectedActivityTypeId = ref<string | null>(null)
-
 
 const origins = ref<Origen[]>([]) // Nuevo estado para los orígenes
 const selectedOriginId = ref<string | null>(null)
@@ -298,7 +306,7 @@ const submitActivity = async () => {
     traditional: actividad.value.traditional ?? true, // Default a true si no está definido
     active: actividad.value.active ?? true // Default a true si no está definido
   }
-
+  console.log(activityData)
   // Validar los datos utilizando el esquema
   try {
     // Enviar la solicitud para crear la actividad
@@ -349,7 +357,6 @@ onMounted(() => {
   fetchPlaces()
   fetchActivityTypes()
   fetchOrigins()
-
 })
 </script>
 

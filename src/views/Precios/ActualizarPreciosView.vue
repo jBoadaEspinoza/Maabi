@@ -2,7 +2,7 @@
   <!-- Uso del ModalLayout -->
   <ModalLayout :show="props.show" title="Horarios" @close="emit('close')">
     <!-- Contenido del modal con el componente HorariosTable -->
-    <ActualizarPrecios :priceId="props.priceId" @price-updated="handlePriceUpdated" />
+    <ActualizarPrecios :priceId="props.priceId" @price-updated="handlePriceUpdated" :precio="precio"/>
   </ModalLayout>
 </template>
 
@@ -15,6 +15,7 @@ import type { Precio } from '@/types/Precio'
 interface Props {
   show: boolean
   priceId: string
+  precio:Precio
 }
 
 const emit = defineEmits(['close', 'price-updated']) // Add 'price-updated' emit

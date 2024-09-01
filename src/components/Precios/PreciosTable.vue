@@ -3,8 +3,8 @@
     <h3 class="text-xl font-semibold text-black dark:text-white">Precios</h3>
 
     <button
-    v-if="precios.length < 3"
-    class="ml-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90 flex items-center space-x-2"
+      v-if="precios.length < 3"
+      class="ml-4 px-4 py-2 bg-primary text-white rounded-md hover:bg-opacity-90 flex items-center space-x-2"
       @click="toggleAddPriceModal"
     >
       <span>Nuevo Precio</span>
@@ -48,7 +48,7 @@
           <td class="py-4 px-4 flex space-x-2">
             <button
               class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-              @click="openUpdatePriceModal(precio.id)"
+              @click="openUpdatePriceModal(precio.id, precio)"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                 <g
@@ -75,12 +75,11 @@
     :activityId="props.activityId"
     @close="toggleAddPriceModal"
     @price-created="fetchPrices"
-
-    
   />
   <ActualizarPreciosView
     :show="isUpdatePriceModalVisible"
     :priceId="currentPriceId"
+    :precio="currentPrice"
     @close="toggleUpdatePriceModal"
     @price-updated="handlePriceUpdated"
   />
@@ -107,11 +106,11 @@ const isAddPriceModalVisible = ref(false) // State for modal visibility
 const isUpdatePriceModalVisible = ref(false)
 const currentPriceId = ref<string | null>(null)
 const precios = ref<Precio[]>([])
-
+const currentPrice = ref<Precio | null>(null) // Inicialmente null
 
 // Method to fetch prices
 async function fetchPrices() {
-  console.log("fetchaprices")
+  console.log('fetchaprices')
   try {
     const result = await PrecioService.getAllPrices(authStore.getToken, props.activityId)
     precios.value = result // Store fetched prices
@@ -120,7 +119,6 @@ async function fetchPrices() {
     console.error('Error fetching prices:', err)
   }
 }
-
 
 async function fetchPriceTypes() {
   try {
@@ -146,8 +144,9 @@ function toggleUpdatePriceModal() {
   isUpdatePriceModalVisible.value = !isUpdatePriceModalVisible.value
 }
 
-function openUpdatePriceModal(priceId: string) {
+function openUpdatePriceModal(priceId: string, precio: Precio) {
   currentPriceId.value = priceId
+  currentPrice.value=precio
   isUpdatePriceModalVisible.value = true // Open the modal
 }
 
@@ -159,6 +158,5 @@ function handlePriceUpdated() {
 onMounted(() => {
   fetchPrices()
   fetchPriceTypes()
-
 })
 </script>
