@@ -11,8 +11,8 @@ import ConfirmDeleteModal from './ConfirmDeleteModal.vue'
 import HorariosView from '@/views/Horarios/HorariosView.vue'
 import PreciosView from '@/views/Precios/PreciosView.vue'
 import InteresesView from '@/views/Intereses/InteresesView.vue'
+import ImagenesView from '@/views/Imagenes/ImagenesView.vue'
 
-import HorariosService from '@/services/horarios/HorariosService'
 import ActividadesService from '@/services/actividades/ActividadesService'
 import LugarService from '@/services/lugares/LugarService'
 
@@ -25,7 +25,7 @@ import type { Precio } from '@/types/Precio'
 import PrecioService from '@/services/precios/PrecioService'
 import type { Origen } from '@/types/Origen'
 import OrigenesService from '@/services/origenes/OrigenesService'
-
+import type { Image } from '@/types/Image'
 
 const activities = ref<Actividad[]>([])
 const authStore = useAuthStore()
@@ -46,6 +46,8 @@ const departures = ref<Horario[]>([])
 
 const precios = ref<Precio[]>([])
 const isPricesModalOpen = ref(false)
+
+
 
 const origins = ref<Origen[]>([]) // Nuevo estado para los orígenes
 
@@ -75,6 +77,10 @@ const fetchOrigins = async () => {
   }
 }
 
+
+
+
+
 // Abre el modal de intereses y carga los intereses de la actividad seleccionada
 const openInterestsModal = (interests: Interes[]) => {
   selectedInterests.value = interests
@@ -84,8 +90,6 @@ const openInterestsModal = (interests: Interes[]) => {
 const closeInterestsModal = () => {
   isInterestsModalOpen.value = false
 }
-
-
 
 const getTypeName = (typeId: string) => {
   const type = activityTypes.value.find((t) => t.id === typeId)
@@ -132,7 +136,6 @@ const confirmDelete = async () => {
 const closeHorariosModal = () => {
   isHorariosModalOpen.value = false
 }
-
 
 const selectedActivityId = ref<string | null>(null) // Store the selected activity ID
 
@@ -206,6 +209,21 @@ watch(perPageSelected, fetchActivities)
 const paginatedActivities = computed(() => {
   return activities.value.slice(startIndex.value, endIndex.value)
 })
+
+const isImagesModalOpen = ref(false)
+const selectedImages = ref<Image[]>([]) // Almacena los intereses seleccionados para mostrar en el modal
+
+
+// Abre el modal de intereses y carga los intereses de la actividad seleccionada
+const openImagesModal = (images: Image[]) => {
+  selectedImages.value = images
+  isImagesModalOpen.value = true
+}
+
+const closeImagesModal = () => {
+  isImagesModalOpen.value = false
+}
+
 onMounted(() => {
   fetchActivities()
   fetchActivityTypes()
@@ -243,6 +261,14 @@ watch(
       :activityId="selectedActivityId"
       @close="closeHorariosModal"
     />
+
+    <ImagenesView
+      :show="isImagesModalOpen"
+      :activityId="selectedActivityId"
+      :images="selectedImages"
+      @close="closeImagesModal"
+    />
+
     <!-- Modal de confirmación para eliminar una actividad -->
     <ConfirmDeleteModal
       :isOpen="isDeleteModalOpen"
@@ -296,7 +322,7 @@ watch(
             <th class="py-4 px-4 font-medium text-black dark:text-white">Destino</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Tipo</th>
 
-            <th class="min-w-[220px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
+            <th class="min-w-[300px] py-4 px-4 font-medium text-black dark:text-white xl:pl-11">
               Nombre
             </th>
             <th class="min-w-[150px] py-4 px-4 font-medium text-black dark:text-white">
@@ -305,6 +331,7 @@ watch(
             <th class="min-w-[120px] py-4 px-4 font-medium text-black dark:text-white">
               Tradicional
             </th>
+            <th class="py-4 px-4 font-medium text-black dark:text-white">Imagenes</th>
 
             <th class="py-4 px-4 font-medium text-black dark:text-white">Precios</th>
             <th class="py-4 px-4 font-medium text-black dark:text-white">Horarios</th>
@@ -372,6 +399,28 @@ watch(
                 {{ activity.traditional ? 'Si' : 'No' }}
               </p>
             </td>
+            <!-- Imagenes Column -->
+
+            <td class="py-5 px-4">
+              <button
+                @click="openImagesModal(activity.images)"
+                class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 256 256"
+                >
+                  <path
+                    fill="#ffffff"
+                    d="M247.31 124.76c-.35-.79-8.82-19.58-27.65-38.41C194.57 61.26 162.88 48 128 48S61.43 61.26 36.34 86.35C17.51 105.18 9 124 8.69 124.76a8 8 0 0 0 0 6.5c.35.79 8.82 19.57 27.65 38.4C61.43 194.74 93.12 208 128 208s66.57-13.26 91.66-38.34c18.83-18.83 27.3-37.61 27.65-38.4a8 8 0 0 0 0-6.5M128 192c-30.78 0-57.67-11.19-79.93-33.25A133.5 133.5 0 0 1 25 128a133.3 133.3 0 0 1 23.07-30.75C70.33 75.19 97.22 64 128 64s57.67 11.19 79.93 33.25A133.5 133.5 0 0 1 231.05 128c-7.21 13.46-38.62 64-103.05 64m0-112a48 48 0 1 0 48 48a48.05 48.05 0 0 0-48-48m0 80a32 32 0 1 1 32-32a32 32 0 0 1-32 32"
+                  />
+                </svg>
+              </button>
+            </td>
+
+            <!-- Precios Column -->
 
             <td class="py-5 px-4">
               <button

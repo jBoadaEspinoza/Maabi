@@ -1,4 +1,5 @@
 import type { Horario } from "./Horario";
+import type { Image } from "./Image";
 import type { Interes } from "./Interes";
 import type { Precio } from "./Precio";
 
@@ -18,4 +19,5 @@ export interface Actividad {
     interests: Interes[];
     departures: Horario[];
     prices: Precio[];
+    images: Image[];
 }

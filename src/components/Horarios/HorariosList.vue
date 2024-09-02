@@ -1,5 +1,4 @@
 <template>
-  <div class="flex items-center mb-4"></div>
   <div class="max-w-full overflow-x-auto">
     <table class="w-full table-auto shadow-xl">
       <thead>
@@ -51,12 +50,62 @@
       @confirm="handleModalConfirm"
     />
   </div>
+
+
+  <DataTableNew
+    :data="paginatedData"
+    :totalItems="totalItems"
+    :rowsPerPage="rowsPerPage"
+    :currentPage="currentPage"
+    :sortKey="sortKey"
+    :sortDesc="sortDesc"
+    :perPageOptions="perPageOptions"
+    @updatePagination="onUpdatePagination"
+  >
+    <!-- Encabezado de la tabla con capacidad de ordenación -->
+    <template #header>
+    
+      <th @click="sortTable('time')" class="py-4 px-4 cursor-pointer">
+        Tiempo
+        <span v-if="sortKey === 'time'">
+          {{ sortDesc ? '⬇️' : '⬆️' }}
+        </span>
+      </th>
+      <th class="py-4 px-4">Acciones</th>
+    </template>
+
+    <!-- Definición de las filas -->
+    <template #row="{ item }">
+        <td class="py-5 px-4">{{ item.time }}</td>
+        <td class="py-4 px-4 flex space-x-2">
+        
+          <button class="px-3 py-1 bg-red text-white rounded-md hover:bg-red-600" @click="openDeleteModal(item.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+              <path fill="#ffffff" d="M7 4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2h4a1 1 0 1 1 0 2h-1.069l-.867 12.142A2 2 0 0 1 17.069 22H6.93a2 2 0 0 1-1.995-1.858L4.07 8H3a1 1 0 0 1 0-2h4zm2 2h6V4H9zM6.074 8l.857 12H17.07l.857-12zM10 10a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1m4 0a1 1 0 0 1 1 1v6a1 1 0 1 1-2 0v-6a1 1 0 0 1 1-1" />
+            </svg>
+          </button>
+        </td>
+    </template>
+  </DataTableNew>
+
+
+
+
+
+
+
+
+
+
+
+
 </template>
 
 <script setup lang="ts">
+import DataTableNew from '../DataTable/DataTableNew.vue'
 import ConfirmDeleteHorarioModal from './ConfirmDeleteHorarioModal.vue'
 import type { Horario } from '@/types/Horario'
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth/authStore'
 import HorariosService from '@/services/horarios/HorariosService'
 import { toast } from 'vue3-toastify'
@@ -66,10 +115,48 @@ interface Props {
   activityId: string
 }
 
+
 const props = defineProps<Props>()
 const horarios = ref<Horario[]>([])
 const isModalOpen = ref(false)
 const horarioToDelete = ref<string | null>(null)
+
+
+
+const rowsPerPage = ref(5);
+const currentPage = ref(1);
+const sortKey = ref('time'); // Ajusta según el campo por defecto
+const sortDesc = ref(false);
+const perPageOptions = [5, 10, 20];
+const totalItems = computed(() => horarios.value.length);
+const paginatedData = computed(() => {
+  let sortedData = [...horarios.value];
+  if (sortKey.value) {
+    sortedData.sort((a, b) => {
+      const result = a[sortKey.value] > b[sortKey.value] ? 1 : -1;
+      return sortDesc.value ? -result : result;
+    });
+  }
+  const start = (currentPage.value - 1) * rowsPerPage.value;
+  return sortedData.slice(start, start + rowsPerPage.value);
+});
+// Ordenar la tabla
+function sortTable(key: string) {
+  if (sortKey.value === key) {
+    sortDesc.value = !sortDesc.value;
+  } else {
+    sortKey.value = key;
+    sortDesc.value = false;
+  }
+  fetchHorarios();
+}
+
+// Actualiza la paginación
+function onUpdatePagination({ rowsPerPage: newRowsPerPage, currentPage: newCurrentPage }) {
+  rowsPerPage.value = newRowsPerPage;
+  currentPage.value = newCurrentPage;
+  fetchHorarios();
+}
 // Function to fetch horarios
 async function fetchHorarios() {
   try {
@@ -89,24 +176,6 @@ async function fetchHorarios() {
   }
 }
 
-// Function to handle deleting a horario
-async function deleteHorario(id: string) {
-  try {
-    // Retrieve the token from the auth store
-    const token = useAuthStore().getToken
-
-    // Call the service to delete the horario
-    const response = await HorariosService.deleteDeparture(token, id)
-    console.log(response)
-    // Show success toast
-    toast.success('Horario eliminado exitosamente!')
-  } catch (error) {
-    console.error('Error deleting horario:', error)
-    // Show error toast
-    toast.error('Error al eliminar el horario.')
-  }
-}
-
 // Open the delete confirmation modal
 function openDeleteModal(id: string) {
   horarioToDelete.value = id
@@ -123,19 +192,18 @@ function handleModalCancel() {
 async function handleModalConfirm() {
   if (horarioToDelete.value) {
     try {
-      const token = useAuthStore().getToken;
-      await HorariosService.deleteDeparture(token, horarioToDelete.value);
-      toast.success('Horario eliminado exitosamente!');
-      fetchHorarios(); // Refresh the list after deletion
+      const token = useAuthStore().getToken
+      await HorariosService.deleteDeparture(token, horarioToDelete.value)
+      toast.success('Horario eliminado exitosamente!')
+      fetchHorarios() // Refresh the list after deletion
     } catch (error) {
-      console.error('Error deleting horario:', error);
-      toast.error('Error al eliminar el horario.');
+      console.error('Error deleting horario:', error)
+      toast.error('Error al eliminar el horario.')
     }
-    isModalOpen.value = false;
-    horarioToDelete.value = null;
+    isModalOpen.value = false
+    horarioToDelete.value = null
   }
 }
-
 
 // Fetch horarios when the component is mounted
 onMounted(() => {
