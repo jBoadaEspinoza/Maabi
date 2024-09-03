@@ -1,43 +1,36 @@
 <template>
-  
-    <ConfirmDeleteHorarioModal
-      :isOpen="isModalOpen"
-      @cancel="handleModalCancel"
-      @confirm="handleModalConfirm"
-    />
-  
-
-
-
-
-
-  <DataTableNew
-  :data="horarios"
-  :totalItems="totalItems"
-  :rowsPerPage="rowsPerPage"
-  :sortKey="'time'"
-  :sortDesc="false"
-  :perPageOptions="[5, 10, 20]"
->
-  <!-- Encabezado de la tabla con capacidad de ordenación -->
-  <template #header="{ sortTable, sortKey, sortDesc }">
-    <th @click="sortTable('time')" class="py-4 px-4 cursor-pointer">
-      Tiempo
-      <span v-if="sortKey === 'time'">
-        {{ sortDesc ? '⬇️' : '⬆️' }}
-      </span>
-    </th>
-    
-    <th class="py-4 px-4">Acciones</th>
-  </template>
-
-  <!-- Definición de las filas -->
-  <template #row="{ item }">
-    <td class="py-5 px-4">{{ item.time }}</td>
-    <td class="py-4 px-4 flex space-x-2">
-      <button
+  <div class="max-w-full overflow-x-auto">
+    <table class="w-full table-auto shadow-xl">
+      <thead>
+        <tr class="bg-gray-2 text-left dark:bg-meta-4">
+          <th class="py-4 px-4 font-medium text-black dark:text-white">#</th>
+          <th class="py-4 px-4 font-medium text-black dark:text-white">Tiempo</th>
+          <th class="py-4 px-4 font-medium text-black dark:text-white">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(horario, index) in horarios" :key="horario.id">
+          <td class="py-5 px-4">{{ index + 1 }}</td>
+          <td class="py-5 px-4 text-black dark:text-white">{{ horario.time }}</td>
+          <td class="py-4 px-4 flex space-x-2">
+            <button class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                <g
+                  fill="none"
+                  stroke="#ffffff"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                >
+                  <path d="M7 7H6a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2v-1" />
+                  <path d="M20.385 6.585a2.1 2.1 0 0 0-2.97-2.97L9 12v3h3zM16 5l3 3" />
+                </g>
+              </svg>
+            </button>
+            <!-- Delete Button -->
+            <button
               class="px-3 py-1 bg-red text-white rounded-md hover:bg-red-600"
-              @click="openDeleteModal(item.id)"
+              @click="openDeleteModal(horario.id)"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                 <path
@@ -46,10 +39,24 @@
                 />
               </svg>
             </button>
-    </td>
-  </template>
-</DataTableNew>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
+    <ConfirmDeleteHorarioModal
+      :isOpen="isModalOpen"
+      @cancel="handleModalCancel"
+      @confirm="handleModalConfirm"
+    />
+  </div>
+
+
+
+
+
+
+  
 
 
 
