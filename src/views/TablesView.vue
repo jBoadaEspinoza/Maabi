@@ -118,7 +118,6 @@ const toggleView = () => {
       <ActividadesList v-if="!showPapelera" />
       <ActividadesPapelera v-else />
       <CrearActividad :show="isModalOpen" :actividad="actividadData" @close="closeModal" />
-      <TestTable/>
 
     
 

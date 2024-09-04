@@ -27,28 +27,34 @@
   </div>
 
   <div class="overflow-x-auto">
-    <table class="w-full table-auto shadow-xl">
-      <thead>
-        <tr class="bg-gray-2 text-left dark:bg-meta-4">
-          <th class="py-4 px-4 font-medium text-black dark:text-white">#</th>
 
-          <th class="py-4 px-4 font-medium text-black dark:text-white">Monto</th>
+
+    <DataTableNew
+      :data="precios"
+      :totalItems="totalItems"
+      :rowsPerPage="rowsPerPage"
+      :sortKey="'time'"
+      :sortDesc="false"
+      :perPageOptions="[5, 10, 20]"
+    >
+      <!-- Encabezado de la tabla con capacidad de ordenación -->
+      <template #header="{ sortTable, sortKey, sortDesc }">
+        <th class="py-4 px-4 font-medium text-black dark:text-white">Monto</th>
           <th class="py-4 px-4 font-medium text-black dark:text-white">Moneda</th>
           <th class="py-4 px-4 font-medium text-black dark:text-white">Tipo de Precio</th>
           <th class="py-4 px-4 font-medium text-black dark:text-white">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(precio, index) in precios" :key="precio.id">
-          <td class="py-4 px-4">{{ index + 1 }}</td>
 
-          <td class="py-4 px-4">{{ precio.amount }}</td>
-          <td class="py-4 px-4">{{ precio.currency }}</td>
-          <td class="py-4 px-4">{{ getPriceTypeName(precio.price_type_id) }}</td>
+      </template>
+
+      <!-- Definición de las filas -->
+      <template #row="{ item }">
+        <td class="py-4 px-4">{{ item.amount }}</td>
+          <td class="py-4 px-4">{{ item.currency }}</td>
+          <td class="py-4 px-4">{{ getPriceTypeName(item.price_type_id) }}</td>
           <td class="py-4 px-4 flex space-x-2">
             <button
               class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-              @click="openUpdatePriceModal(precio.id, precio)"
+              @click="openUpdatePriceModal(item.id, item)"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
                 <g
@@ -64,9 +70,8 @@
               </svg>
             </button>
           </td>
-        </tr>
-      </tbody>
-    </table>
+      </template>
+    </DataTableNew>
   </div>
 
   <!-- Agregar Precio Modal -->
@@ -86,13 +91,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import type { Precio } from '@/types/Precio'
 import type { TipoPrecio } from '@/types/TipoPrecio'
 import PrecioService from '@/services/precios/PrecioService'
 import { useAuthStore } from '@/stores/auth/authStore'
 import CrearPrecioView from '@/views/Precios/CrearPrecioView.vue'
 import ActualizarPreciosView from '@/views/Precios/ActualizarPreciosView.vue'
+import DataTableNew from '../DataTable/DataTableNew.vue'
 
 interface Props {
   activityId: string
@@ -107,6 +113,12 @@ const isUpdatePriceModalVisible = ref(false)
 const currentPriceId = ref<string | null>(null)
 const precios = ref<Precio[]>([])
 const currentPrice = ref<Precio | null>(null) // Inicialmente null
+
+
+const rowsPerPage = ref(5);
+
+const totalItems = computed(() => precios.value.length);
+
 
 // Method to fetch prices
 async function fetchPrices() {
@@ -146,13 +158,14 @@ function toggleUpdatePriceModal() {
 
 function openUpdatePriceModal(priceId: string, precio: Precio) {
   currentPriceId.value = priceId
-  currentPrice.value=precio
+  currentPrice.value = precio
   isUpdatePriceModalVisible.value = true // Open the modal
 }
 
 function handlePriceUpdated() {
-  console.log('Price updated event received') // Para verificar si el evento se recibe
+  console.log('Price updated event received')
   fetchPrices()
+  toggleUpdatePriceModal()
 }
 
 onMounted(() => {

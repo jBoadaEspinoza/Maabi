@@ -1,9 +1,26 @@
 <template>
   <div class="flex items-center mb-4">
-    <h3 class="text-xl font-semibold text-black dark:text-white">Imagens</h3>
+    <h3 class="text-xl font-semibold text-black dark:text-white">Imagenes</h3>
   </div>
+  <div class="card">
+
+  <Galleria :value="props.images" :responsiveOptions="responsiveOptions" :numVisible="5" containerStyle="max-width: 140px">
+            <template #item="slotProps">
+                <img :src="slotProps.item.url" :alt="slotProps.item.alt" style="width: 100%" />
+            </template>
+            <template #thumbnail="slotProps">
+                <img :src="slotProps.item.url" :alt="slotProps.item.alt" />
+            </template>
+        </Galleria>
+      </div>
 
   <div class="max-w-full overflow-x-auto">
+
+
+
+
+
+
     <table class="w-full table-auto shadow-xl">
       <thead>
         <tr class="bg-gray-2 text-left dark:bg-meta-4">
@@ -74,6 +91,7 @@
 <script setup lang="ts">
 import type { Image } from '@/types/Image'
 import { ref, onMounted } from 'vue'
+import Galleria from 'primevue/galleria';
 
 interface Props {
   activityId: string
@@ -98,7 +116,16 @@ const editImage = (imageId: string) => {
 const openDeleteModal = (imageId: string) => {
   console.log('Open delete modal for image with ID:', imageId)
 }
-
+const responsiveOptions = ref([
+    {
+        breakpoint: '1300px',
+        numVisible: 4
+    },
+    {
+        breakpoint: '200px',
+        numVisible: 1
+    }
+]);
 onMounted(() => {
   // Aquí puedes poner cualquier lógica que quieras que se ejecute al montar el componente
 })

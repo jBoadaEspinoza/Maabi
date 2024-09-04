@@ -102,11 +102,10 @@ const sidebarStore = useSidebarStore()
           </li>
 
           <!-- Notification Menu Area -->
-          <DropdownNotification />
+      
           <!-- Notification Menu Area -->
 
           <!-- Chat Notification Area -->
-          <DropdownMessage />
           <!-- Chat Notification Area -->
         </ul>
 

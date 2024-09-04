@@ -2,7 +2,8 @@
     <!-- Uso del ModalLayout -->
     <ModalLayout :show="props.show" title="Horarios" @close="emit('close')"  >
       <!-- Contenido del modal con el componente HorariosTable -->
-      <Crearprecios :activityId="props.activityId" @price-created="handlePriceCreeated"/>
+      <Crearprecios :activityId="props.activityId" @price-created="handlePriceCreeated"
+      />
     </ModalLayout>
   </template>
   
