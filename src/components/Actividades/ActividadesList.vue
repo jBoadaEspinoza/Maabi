@@ -164,6 +164,8 @@ const perPageSelected = ref(10) // Number of activities to fetch
 const perPageOptions = ref([10, 20, 50, 100]) // Options for total rows to fetch
 
 // Pagination Computed Properties
+const totalItems2 = computed(() => activitiesStore.getTotal) // Usa el total del store
+
 const totalItems = computed(() => activities.value.length)
 const totalPages = computed(() => Math.ceil(totalItems.value / rowsPerPage.value))
 const startIndex = computed(() => (currentPage.value - 1) * rowsPerPage.value)
@@ -240,6 +242,7 @@ watch(
   { immediate: true }
 )
 
+import UploadFile from '../Imagenes/UploadFile.vue'
 
 </script>
 
@@ -281,7 +284,7 @@ watch(
       @cancel="closeDeleteModal"
       @confirm="confirmDelete"
     />
-
+   
     <!-- Pagination Controls -->
     <div class="flex justify-between items-center mt-4 mb-4">
       <div class="flex items-center">
@@ -299,7 +302,7 @@ watch(
       </div>
 
       <div>
-        <span>{{ startIndex + 1 }}–{{ endIndex }} of {{ totalItems }}</span>
+        <span>{{ startIndex + 1 }}–{{ endIndex }} of {{ totalItems2 }}</span>
         <button
           @click="prevPage"
           :disabled="currentPage === 1"

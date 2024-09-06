@@ -10,7 +10,7 @@ class ActividadesService {
     skip: number = 0,
     sort: 'ASC' | 'DESC' = 'ASC',
     active?: boolean
-  ): Promise<Actividad[]> {
+  ): Promise<{ activities: Actividad[], total: number }> {
     try {
       // Construye los parámetros de consulta
       const params: Record<string, any> = {
@@ -27,10 +27,12 @@ class ActividadesService {
         headers: { Authorization: `Bearer ${token}` },
         params // Añade los parámetros de consulta
       })
-
+      console.log(response);
       // Extrae las actividades del campo response.data
       const activities = response.data?.response?.data || []
-      return activities as Actividad[]
+      const total = response.data?.response?.total_registers || 0
+      
+      return { activities, total } // Retorna un objeto con actividades y total
     } catch (error) {
       console.error('Error fetching activities:', error)
       throw error

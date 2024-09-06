@@ -359,7 +359,7 @@ const menuGroups = ref([
                   />
                 </svg>`,
         label: 'Galeria',
-        route: '#'
+        route: 'galeria'
       },
       {
         icon: `<svg

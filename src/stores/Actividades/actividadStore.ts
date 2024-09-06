@@ -7,13 +7,17 @@ interface ActivitiesState {
   activities: Actividad[]
   loading: boolean
   error: string | null
+  total: number
+
 }
 
 export const actividadStore = defineStore('activities', {
   state: (): ActivitiesState => ({
     activities: [],
     loading: false,
-    error: null
+    error: null,
+    total: 0
+
   }),
 
   actions: {
@@ -29,13 +33,14 @@ export const actividadStore = defineStore('activities', {
     
       try {
         // Call the service method with the necessary parameters
-        const response = await ActividadesService.getAllActivities(token, limit, skip, sort, active);
+        const { activities, total } = await ActividadesService.getAllActivities(token, limit, skip, sort, active);
         
-        // Update the store state with the fetched activities
-        this.activities = response;
+        // Update the store state with the fetched activities and total
+        this.activities = activities;
+        this.total = total;
         
         // Log success message if needed
-        console.log('Activities fetched successfully:', response);
+        //console.log('Activities fetched successfully:', total);
       } catch (error: any) {
         // Capture and log any errors
         this.error = error.response?.data?.message || 'Error fetching activities';
@@ -50,6 +55,8 @@ export const actividadStore = defineStore('activities', {
   getters: {
     getActivities: (state) => state.activities,
     isLoading: (state) => state.loading,
-    getError: (state) => state.error
+    getError: (state) => state.error,
+    getTotal: (state) => state.total // Agregado para acceder al total
+
   }
 })

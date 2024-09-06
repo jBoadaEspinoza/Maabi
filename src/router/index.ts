@@ -13,6 +13,8 @@ import TablesView from '@/views/TablesView.vue'
 import AlertsView from '@/views/UiElements/AlertsView.vue'
 import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 import { useAuthStore } from '@/stores/auth/authStore'
+import Gallery from '@/components/Imagenes/Gallery.vue'
+import GalleryView from '@/views/Gallery/GalleryView.vue'
 
 const routes = [
   {
@@ -110,6 +112,14 @@ const routes = [
     component: SignupView,
     meta: {
       title: 'Signup'
+    }
+  },
+  {
+    path: '/galeria',
+    name: 'Galeria',
+    component: GalleryView,
+    meta: {
+      title: 'Galeria'
     }
   }
 ]
