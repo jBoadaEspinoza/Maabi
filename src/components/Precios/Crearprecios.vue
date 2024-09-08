@@ -73,8 +73,8 @@
 import { ref, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth/authStore'
 import PrecioService from '@/services/precios/PrecioService' // Import the service
-import { toast } from 'vue3-toastify'
-import 'vue3-toastify/dist/index.css'
+
+import Swal from 'sweetalert2';
 
 // Access the authentication store
 const authStore = useAuthStore()
@@ -128,8 +128,12 @@ async function handleSubmit() {
 
       console.log(newPrice)
       // Show success toast
-      toast.success('Precio creado exitosamente!')
-
+      Swal.fire({
+        title: '¡Éxito!',
+        text: 'Precio creado exitosamente!',
+        icon: 'success',
+        confirmButtonText: 'Aceptar',
+      });
       // Optionally, you could also emit the new price to the parent component if needed
       emit('price-created');
 

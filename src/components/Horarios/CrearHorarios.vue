@@ -48,6 +48,7 @@ import HorariosService from '@/services/horarios/HorariosService'
 import { useAuthStore } from '@/stores/auth/authStore'
 import { toast } from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
+import Swal from 'sweetalert2';
 
 // Access the authentication store
 const authStore = useAuthStore()
@@ -87,8 +88,12 @@ async function handleSubmit() {
       // Call the service method to create a new horario
       await HorariosService.crearHorario(authStore.getToken, time.value, props.activityId)
       // Show success toast
-      toast.success('Horario creado exitosamente!')
-
+      Swal.fire({
+        title: '¡Éxito!',
+        text: 'Horario creado exitosamente!',
+        icon: 'success',
+        confirmButtonText: 'Aceptar',
+      });
       emit('departure-created');
     } catch (error) {
       console.error('Error saving new horario:', error)

@@ -399,7 +399,7 @@ const menuGroups = ref([
 
 <template>
   <aside
-    class="absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0"
+    class="absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden bg-crimson duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0"
     :class="{
       'translate-x-0': sidebarStore.isSidebarOpen,
       '-translate-x-full': !sidebarStore.isSidebarOpen
@@ -409,7 +409,7 @@ const menuGroups = ref([
     <!-- SIDEBAR HEADER -->
     <div class="flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5">
       <router-link to="/">
-        <img src="@/assets/images/logo/logo.svg" alt="Logo" />
+        <div class="text-2xl font-bold text-white text-center">Gestiona Facil</div>
       </router-link>
 
       <button class="block lg:hidden" @click="sidebarStore.isSidebarOpen = false">
@@ -435,7 +435,7 @@ const menuGroups = ref([
       <nav class="mt-5 py-4 px-4 lg:mt-9 lg:px-6">
         <template v-for="menuGroup in menuGroups" :key="menuGroup.name">
           <div>
-            <h3 class="mb-4 ml-4 text-sm font-medium text-bodydark2">{{ menuGroup.name }}</h3>
+            <h3 class="mb-4 ml-4 text-sm font-medium text-white">{{ menuGroup.name }}</h3>
 
             <ul class="mb-6 flex flex-col gap-1.5">
               <SidebarItem

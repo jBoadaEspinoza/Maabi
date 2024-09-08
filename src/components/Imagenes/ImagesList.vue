@@ -1,6 +1,11 @@
 <template>
   <div class="flex items-center mb-4">
     <h3 class="text-xl font-semibold text-black dark:text-white">Imagenes</h3>
+    <button
+      class="bg-blue-500 ml-4 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+    >
+      Agregar Imagen
+    </button>
   </div>
 
   <div class="max-w-full overflow-x-autov bg-gray-2 p-4">

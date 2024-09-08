@@ -183,6 +183,7 @@ import OrigenesService from '@/services/origenes/OrigenesService'
 
 import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import Swal from 'sweetalert2';
 
 // Definición de las props
 const props = defineProps<{
@@ -338,7 +339,15 @@ const submitActivity = async () => {
 
     // Cerrar el modal y limpiar el estado si es necesario
     //closeModal();
-    toast.success('La actividad ha sido creada exitosamente.')
+    //toast.success('La actividad ha sido creada exitosamente.')
+
+    Swal.fire({
+        title: '¡Éxito!',
+        text: 'La actividad ha sido creada exitosamente.',
+        icon: 'success',
+        confirmButtonText: 'Aceptar',
+      });
+
   } catch (error) {
     if (error instanceof z.ZodError) {
       // Mostrar los errores de validación al usuario

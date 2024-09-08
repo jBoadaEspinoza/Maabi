@@ -16,6 +16,9 @@ export default {
     },
     extend: {
       colors: {
+        crimson: '#dc143c',
+        crimsonDark: '#B21031',
+
         current: 'currentColor',
         transparent: 'transparent',
         white: '#FFFFFF',

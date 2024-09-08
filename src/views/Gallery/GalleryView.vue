@@ -12,7 +12,7 @@ const pageTitle = ref('Galeria')
   <DefaultLayout>
     <!-- Breadcrumb Start -->
     
-    <BreadcrumbDefault :pageTitle="pageTitle" />
+    <BreadcrumbDefault :pageTitle="pageTitle" /> 
     <Gallery/>
 
   </DefaultLayout>
