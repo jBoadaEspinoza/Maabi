@@ -10,7 +10,7 @@ class ActividadesService {
     skip: number = 0,
     sort: 'ASC' | 'DESC' = 'ASC',
     active?: boolean
-  ): Promise<{ activities: Actividad[], total: number }> {
+  ): Promise<{ activities: Actividad[]; total: number }> {
     try {
       // Construye los parámetros de consulta
       const params: Record<string, any> = {
@@ -27,11 +27,11 @@ class ActividadesService {
         headers: { Authorization: `Bearer ${token}` },
         params // Añade los parámetros de consulta
       })
-      console.log(response);
+      console.log(response)
       // Extrae las actividades del campo response.data
       const activities = response.data?.response?.data || []
       const total = response.data?.response?.total_registers || 0
-      
+
       return { activities, total } // Retorna un objeto con actividades y total
     } catch (error) {
       console.error('Error fetching activities:', error)
@@ -96,25 +96,24 @@ class ActividadesService {
   }
 
   static async deleteActivity(token: string, id: string): Promise<void> {
-  try {
-    const response = await axiosInstance.post(
-      `/activities/${id}/sendToTrash`, 
-      null, // No necesitas enviar un payload en el cuerpo
-      {
-        headers: { 
-          Authorization: `Bearer ${token}`, // El token se envía como encabezado
-          'Content-Type': 'application/json'
+    try {
+      const response = await axiosInstance.post(
+        `/activities/${id}/sendToTrash`,
+        null, // No necesitas enviar un payload en el cuerpo
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // El token se envía como encabezado
+            'Content-Type': 'application/json'
+          }
         }
-      }
-    );
-  
-    console.log(response);
-  } catch (error) {
-    console.error('Error deleting activity:', error);
-    throw error;
-  }
-}
+      )
 
+      console.log(response)
+    } catch (error) {
+      console.error('Error deleting activity:', error)
+      throw error
+    }
+  }
 
   /**
    * Agrega una lista de intereses a una actividad turística.
@@ -136,17 +135,17 @@ class ActividadesService {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           }
         }
-      );
-      return response.data; // Asegúrate de devolver la data
+      )
+      return response.data // Asegúrate de devolver la data
     } catch (error) {
-      console.error('Error adding interests to activity:', error);
-      throw error; // Lanza el error para manejarlo en el código que llama a esta función
+      console.error('Error adding interests to activity:', error)
+      throw error // Lanza el error para manejarlo en el código que llama a esta función
     }
   }
-  
+
   /**
    * Restaura una actividad turística enviándola a un estado activo (active = TRUE).
    * @param token - Token de autorización Bearer.
@@ -156,7 +155,7 @@ class ActividadesService {
   static async restaurarActividad(token: string, id: string): Promise<any> {
     try {
       const response = await axiosInstance.post(
-        `/activities/${id}/restore`, 
+        `/activities/${id}/restore`,
         null, // No necesitas enviar un payload en el cuerpo
         {
           headers: {
@@ -164,19 +163,68 @@ class ActividadesService {
             'Content-Type': 'application/json'
           }
         }
-      );
-  
-      console.log(response);
-  
+      )
+
+      console.log(response)
+
       // Extrae la actividad restaurada del campo response.data
-      const restoredActivity = response.data?.response?.data || {};
-      return restoredActivity as Actividad;
+      const restoredActivity = response.data?.response?.data || {}
+      return restoredActivity as Actividad
     } catch (error) {
-      console.error('Error restoring activity:', error);
-      throw error;
+      console.error('Error restoring activity:', error)
+      throw error
     }
   }
-  
+
+  static async addImagesToActivity(
+    token: string,
+    activityId: string,
+    imageUrls: string[] // Lista de URLs de las imágenes a agregar
+  ): Promise<any> {
+    try {
+      const response = await axiosInstance.post(
+        `/activities/${activityId}/addImages`,
+        { images: imageUrls }, // El payload con la lista de imágenes
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      // Retorna los datos de la respuesta del servidor
+      return response.data
+    } catch (error) {
+      console.error('Error adding images to activity:', error)
+      throw error
+    }
+  }
+
+  // Método para eliminar imágenes de una actividad turística
+  static async deleteImagesFromActivity(
+    token: string,
+    activityId: string,
+    imageUrls: string[] // Lista de URLs de las imágenes a eliminar
+  ): Promise<any> {
+    try {
+      const response = await axiosInstance.post(
+        `/activities/${activityId}/deleteImages`,
+        { images: imageUrls }, // El payload con la lista de imágenes a eliminar
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      return response.data
+    } catch (error) {
+      console.error('Error deleting images from activity:', error)
+      throw error
+    }
+  }
 }
 
 export default ActividadesService

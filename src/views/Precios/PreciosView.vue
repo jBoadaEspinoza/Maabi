@@ -2,7 +2,7 @@
   <!-- Uso del ModalLayout -->
   <ModalLayout :show="props.show" title="Horarios" @close="emit('close')">
     <!-- Contenido del modal con el componente HorariosTable -->
-    <PreciosTable :activityId="props.activityId" />
+    <PreciosTable :activityId="props.activityId" :actividadTitle="props.actividadTitle"/>
   </ModalLayout>
 </template>
 
@@ -15,6 +15,8 @@ import type { Precio } from '@/types/Precio'
 interface Props {
   show: boolean
   activityId: string
+  actividadTitle: string
+
 }
 
 const emit = defineEmits(['close'])

@@ -12,6 +12,7 @@ import HorariosView from '@/views/Horarios/HorariosView.vue'
 import PreciosView from '@/views/Precios/PreciosView.vue'
 import InteresesView from '@/views/Intereses/InteresesView.vue'
 import ImagenesView from '@/views/Imagenes/ImagenesView.vue'
+import ActivityGalleryView from '@/views/Actividades/ActivityGalleryView.vue'
 
 import ActividadesService from '@/services/actividades/ActividadesService'
 import LugarService from '@/services/lugares/LugarService'
@@ -46,7 +47,6 @@ const departures = ref<Horario[]>([])
 
 const precios = ref<Precio[]>([])
 const isPricesModalOpen = ref(false)
-
 
 
 const origins = ref<Origen[]>([]) // Nuevo estado para los orígenes
@@ -138,6 +138,7 @@ const closeHorariosModal = () => {
 }
 
 const selectedActivityId = ref<string | null>(null) // Store the selected activity ID
+const selectedActivityTitle = ref<string | null>(null) // Store the selected activity ID
 
 const handleDepartures = (activityId: string, activityDepartures: any[]) => {
   departures.value = activityDepartures // Store the provided departures
@@ -146,11 +147,12 @@ const handleDepartures = (activityId: string, activityDepartures: any[]) => {
 }
 
 // Method to fetch prices
-const fetchPrices = async (activityId: string) => {
+const fetchPrices = async (activityId: string, activityTitle : string) => {
   try {
     const result = await PrecioService.getAllPrices(authStore.getToken, activityId)
     precios.value = result // Store fetched prices
     selectedActivityId.value = activityId // Store the activity ID
+    selectedActivityTitle.value = activityTitle
     isPricesModalOpen.value = true // Open the modal
     console.log(result) // Print the result to the console
   } catch (err) {
@@ -217,8 +219,9 @@ const selectedImages = ref<Image[]>([]) // Almacena los intereses seleccionados 
 
 
 // Abre el modal de intereses y carga los intereses de la actividad seleccionada
-const openImagesModal = (images: Image[]) => {
+const openImagesModal = (images: Image[], activityId: string) => {
   selectedImages.value = images
+  selectedActivityId.value=activityId
   isImagesModalOpen.value = true
 }
 
@@ -262,6 +265,7 @@ import UploadFile from '../Imagenes/UploadFile.vue'
     <PreciosView
       :show="isPricesModalOpen"
       :activityId="selectedActivityId"
+      :actividadTitle="selectedActivityTitle"
       @close="isPricesModalOpen = false"
     />
 
@@ -412,7 +416,7 @@ import UploadFile from '../Imagenes/UploadFile.vue'
 
             <td class="py-5 px-4">
               <button
-                @click="openImagesModal(activity.images)"
+                @click="openImagesModal(activity.images, activity.id)"
                 class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
               >
                 <svg
@@ -433,7 +437,7 @@ import UploadFile from '../Imagenes/UploadFile.vue'
 
             <td class="py-5 px-4">
               <button
-                @click="fetchPrices(activity.id)"
+                @click="fetchPrices(activity.id, activity.name_es)"
                 class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
               >
                 <svg

@@ -38,7 +38,7 @@ export const actividadStore = defineStore('activities', {
         // Update the store state with the fetched activities and total
         this.activities = activities;
         this.total = total;
-        
+        console.log(this.activities)
         // Log success message if needed
         //console.log('Activities fetched successfully:', total);
       } catch (error: any) {

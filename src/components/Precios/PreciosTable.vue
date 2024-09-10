@@ -1,6 +1,6 @@
 <template>
   <div class="flex items-center mb-4">
-    <h3 class="text-xl font-semibold text-black dark:text-white">Precios</h3>
+    <h3 class="text-xl font-semibold text-black dark:text-white">Precios - {{ props.actividadTitle }}</h3>
 
     <button
       v-if="precios.length < 3"
@@ -102,6 +102,7 @@ import DataTableNew from '../DataTable/DataTableNew.vue'
 
 interface Props {
   activityId: string
+  actividadTitle: string
 }
 
 const props = defineProps<Props>()

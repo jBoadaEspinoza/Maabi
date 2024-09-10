@@ -5,7 +5,7 @@
       class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-flex items-center"
       @click="triggerFileInput"
     >
-      <span>Subir Foto</span>
+      <span>Subir Imagen</span>
       <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" class="ml-2">
         <path fill="#ffffff" d="M11 16V7.85l-2.6 2.6L7 9l5-5l5 5l-1.4 1.45l-2.6-2.6V16zm-5 4q-.825 0-1.412-.587T4 18v-3h2v3h12v-3h2v3q0 .825-.587 1.413T18 20z"/>
       </svg>
@@ -26,9 +26,12 @@ import { ref, defineEmits } from 'vue';
 import Swal from 'sweetalert2';
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { storage } from '@/services/firebase/firebase';
+import ImagenService from '@/services/imagenes/ImagenService';
+import { useAuthStore } from '@/stores/auth/authStore';
 
 // Define emit for custom events
 const emit = defineEmits(['upload-success']);
+const authStore = useAuthStore()
 
 const downloadURL = ref<string | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -70,7 +73,8 @@ const handleFileUpload = async (event: Event) => {
       console.log('Archivo subido exitosamente', snapshot);
 
       downloadURL.value = await getDownloadURL(snapshot.ref);
-
+      const response = await ImagenService.addImageToGallery(authStore.getToken, downloadURL.value, '');
+      console.log(response)
       Swal.fire({
         title: '¡Éxito!',
         text: 'El archivo se ha subido correctamente.',
