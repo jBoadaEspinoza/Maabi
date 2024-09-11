@@ -32,33 +32,34 @@ class ImagenService {
     }
   }
 
-  /**
-   * Elimina una imagen de la galería según su ID.
-   * @param token - Token de autorización Bearer.
-   * @param imageId - ID de la imagen a eliminar (Requerido).
-   * @returns - Promesa que se resuelve con la respuesta del servidor.
-   */
-  static async deleteImageFromGallery(token: string, imageId: string): Promise<any> {
-    try {
-      const response = await axiosInstance.post(
-        `/images/${imageId}/delete`, // URL con el ID de la imagen
-        {}, // Sin payload, solo headers
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+/**
+ * Elimina una lista de imágenes asociadas a una actividad turística.
+ * @param token - Token de autorización Bearer.
+ * @param activityId - ID de la actividad turística a la cual están asociadas las imágenes.
+ * @param imageIds - Array con los IDs de las imágenes a eliminar (Requerido).
+ * @returns - Promesa que se resuelve con la respuesta del servidor.
+ */
+static async deleteImagesFromActivity(token: string, activityId: string, imageIds: string[]): Promise<any> {
+  try {
+    const response = await axiosInstance.post(
+      `/activities/${activityId}/deleteImages`, // URL con el ID de la actividad
+      { images: imageIds }, // Payload con el array de IDs de imágenes
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
         }
-      )
-  
-      // Retorna los datos de la respuesta del servidor
-      return response.data
-    } catch (error) {
-      console.error('Error deleting image from gallery:', error)
-      throw error
-    }
+      }
+    )
+
+    // Retorna los datos de la respuesta del servidor
+    return response.data
+  } catch (error) {
+    console.error('Error deleting images from activity:', error)
+    throw error
   }
-  
+}
+
 
   /**
    * Obtiene la lista de todas las imágenes disponibles.

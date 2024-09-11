@@ -2,7 +2,7 @@
   <!-- Uso del ModalLayout -->
   <ModalLayout :show="props.show" title="Imagenes" @close="emit('close')">
     <!-- Contenido del modal con el componente HorariosTable -->
-    <ImagesList :activityId="props.activityId" :images="props.images"/>
+    <ImagesList :activityTitle="props.activityTitle" :activityId="props.activityId" :images="props.images"/>
   </ModalLayout>
 </template>
 
@@ -15,6 +15,7 @@ interface Props {
   show: boolean
   activityId: string
   images: Image[]
+  activityTitle: string
 }
 
 const emit = defineEmits(['close'])

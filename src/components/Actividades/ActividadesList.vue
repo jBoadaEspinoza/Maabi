@@ -219,9 +219,10 @@ const selectedImages = ref<Image[]>([]) // Almacena los intereses seleccionados 
 
 
 // Abre el modal de intereses y carga los intereses de la actividad seleccionada
-const openImagesModal = (images: Image[], activityId: string) => {
+const openImagesModal = (images: Image[], activityId: string, activityTitle: string) => {
   selectedImages.value = images
   selectedActivityId.value=activityId
+  selectedActivityTitle.value = activityTitle
   isImagesModalOpen.value = true
 }
 
@@ -244,8 +245,6 @@ watch(
   },
   { immediate: true }
 )
-
-import UploadFile from '../Imagenes/UploadFile.vue'
 
 </script>
 
@@ -278,6 +277,7 @@ import UploadFile from '../Imagenes/UploadFile.vue'
     <ImagenesView
       :show="isImagesModalOpen"
       :activityId="selectedActivityId"
+      :activityTitle="selectedActivityTitle"
       :images="selectedImages"
       @close="closeImagesModal"
     />
@@ -416,7 +416,7 @@ import UploadFile from '../Imagenes/UploadFile.vue'
 
             <td class="py-5 px-4">
               <button
-                @click="openImagesModal(activity.images, activity.id)"
+                @click="openImagesModal(activity.images, activity.id,activity.name_es)"
                 class="mt-2 px-3 py-1 bg-primary text-white rounded-md hover:bg-opacity-90"
               >
                 <svg

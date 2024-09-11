@@ -50,11 +50,14 @@ import Swal from 'sweetalert2';
 import ImagenService from '@/services/imagenes/ImagenService';
 import { useAuthStore } from '@/stores/auth/authStore';
 import ActividadesService from '@/services/actividades/ActividadesService';
+import type { Image } from '@/types/Image';
+
 interface Props {
   activityId: string,
+  images: Image[] // Las imágenes asociadas a la actividad
 }
 const props = defineProps<Props>()
-console.log(props.activityId)
+
 // Estado que contiene las imágenes (ID y URL)
 const imageData = ref<{ id: string, url: string }[]>([]);
 const selectedImages = ref<string[]>([]); // Estado para las imágenes seleccionadas
@@ -70,7 +73,14 @@ const loadImages = async () => {
       url: img.url
     }));
 
-    console.log(imageData)
+    // Seleccionar automáticamente las imágenes que ya están asociadas a la actividad
+    const selectedIds = props.images.map(image => image.id); // Obtener los IDs de las imágenes asociadas
+    selectedImages.value = imageData.value
+      .filter(image => selectedIds.includes(image.id)) // Filtrar las imágenes que coinciden con los IDs en props.images
+      .map(image => image.id); // Extraer solo los IDs de las imágenes filtradas
+
+    console.log('Imágenes cargadas:', imageData);
+    console.log('Imágenes seleccionadas automáticamente:', selectedImages);
   } catch (error) {
     console.error('Error al cargar las imágenes:', error);
   }
@@ -90,9 +100,9 @@ const addImagesToActivity = async () => {
 
   try {
     const imageIds = selectedImages.value; // Enviar los IDs de las imágenes seleccionadas
-    console.log(imageIds)
+    console.log('IDs de las imágenes a agregar:', imageIds);
     const response = await ActividadesService.addImagesToActivity(authStore.getToken, props.activityId, imageIds);
-    console.log(response);
+    console.log('Respuesta del servidor:', response);
 
     Swal.fire({
       title: '¡Éxito!',
