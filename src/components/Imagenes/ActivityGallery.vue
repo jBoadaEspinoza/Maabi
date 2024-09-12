@@ -63,6 +63,21 @@ const imageData = ref<{ id: string, url: string }[]>([]);
 const selectedImages = ref<string[]>([]); // Estado para las imágenes seleccionadas
 const selectAll = ref(false); // Estado para seleccionar/desmarcar todas las imágenes
 const authStore = useAuthStore();
+const emit = defineEmits(['update-images']); // Define el evento que será emitido
+
+const images2 = ref<Image[]>([]) // Almacenará las imágenes asociadas a la actividad
+
+// Función para obtener las imágenes de la actividad
+const loadActivityImages = async () => {
+  try {
+    const token = authStore.getToken
+    const response = await ImagenService.getImagesByActivity(token, props.activityId)
+    images2.value = response // Asignar las imágenes al estado local
+    console.log(response)
+  } catch (error) {
+    console.error('Error al cargar las imágenes:', error)
+  }
+}
 
 // Cargar imágenes desde el servidor
 const loadImages = async () => {
@@ -74,7 +89,7 @@ const loadImages = async () => {
     }));
 
     // Seleccionar automáticamente las imágenes que ya están asociadas a la actividad
-    const selectedIds = props.images.map(image => image.id); // Obtener los IDs de las imágenes asociadas
+    const selectedIds = images2.value.map(image => image.id); // Obtener los IDs de las imágenes asociadas
     selectedImages.value = imageData.value
       .filter(image => selectedIds.includes(image.id)) // Filtrar las imágenes que coinciden con los IDs en props.images
       .map(image => image.id); // Extraer solo los IDs de las imágenes filtradas
@@ -112,8 +127,10 @@ const addImagesToActivity = async () => {
     });
 
     // Limpiar la selección de imágenes
-    selectedImages.value = [];
-    selectAll.value = false; // Resetear el estado de "Seleccionar todas"
+    //selectedImages.value = [];
+    emit('update-images');
+
+    //selectAll.value = false; // Resetear el estado de "Seleccionar todas"
   } catch (error) {
     console.error('Error al agregar imágenes a la actividad:', error);
 
@@ -135,9 +152,11 @@ const toggleAll = () => {
   }
 };
 
-// Cargar las imágenes al montar el componente
-onMounted(() => {
-  loadImages();
+
+// Cargar las imágenes al montar el componente, garantizando que loadActivityImages se ejecute antes de loadImages
+onMounted(async () => {
+  await loadActivityImages(); // Esperar a que las imágenes de la actividad se carguen
+  loadImages(); // Luego cargar las imágenes globales
 });
 </script>
 

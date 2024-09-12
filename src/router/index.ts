@@ -15,7 +15,7 @@ import ButtonsView from '@/views/UiElements/ButtonsView.vue'
 import { useAuthStore } from '@/stores/auth/authStore'
 import Gallery from '@/components/Imagenes/Gallery.vue'
 import GalleryView from '@/views/Gallery/GalleryView.vue'
-
+import VentasView from '@/views/Ventas/VentasView.vue'
 const routes = [
   {
     path: '/',
@@ -120,6 +120,14 @@ const routes = [
     component: GalleryView,
     meta: {
       title: 'Galeria'
+    }
+  },
+  {
+    path: '/ventas',
+    name: 'Ventas',
+    component: VentasView,
+    meta: {
+      title: 'Ventas'
     }
   }
 ]

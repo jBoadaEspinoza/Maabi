@@ -5,10 +5,28 @@
     </h3>
     <!-- Botón que abre el modal -->
     <button
-      class="bg-blue-500 mt-2 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+      class="bg-blue-500 mt-2 text-white px-4 py-2 rounded-md hover:bg-blue-600 flex items-center space-x-2"
       @click="openGalleryModal"
     >
-      Agregar Imagen
+      <span>Agregar Imagen</span>
+
+      <!-- Ícono SVG dentro del botón -->
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="30"
+        height="30"
+        viewBox="0 0 24 24"
+        fill="white"
+      >
+        <g fill-rule="evenodd" clip-rule="evenodd">
+          <path
+            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12m10-8a8 8 0 1 0 0 16 8 8 0 0 0 0-16"
+          />
+          <path
+            d="M13 7a1 1 0 1 0-2 0v4H7a1 1 0 1 0 0 2h4v4a1 1 0 1 0 2 0v-4h4a1 1 0 1 0 0-2h-4V7z"
+          />
+        </g>
+      </svg>
     </button>
   </div>
 
@@ -21,7 +39,7 @@
       :wrap-around="false"
       class="mb-4"
     >
-      <Slide v-for="(image, index) in images" :key="index">
+      <Slide v-for="(image, index) in images2" :key="index">
         <div class="carousel__item relative">
           <!-- Imagen principal -->
           <img
@@ -32,7 +50,7 @@
 
           <!-- Botón de borrar en la esquina superior derecha -->
           <button
-            @click="deleteImage([image.id])"
+            @click="openDeleteModal(image.id)"
             class="absolute top-2 right-2 bg-red text-white p-1 rounded-lg shadow-md hover:bg-red-700"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 56 56">
@@ -54,7 +72,7 @@
       v-model="currentSlide"
       ref="thumbnailCarousel"
     >
-      <Slide v-for="(image, index) in images" :key="index">
+      <Slide v-for="(image, index) in images2" :key="index">
         <div class="carousel__item relative" @click="slideTo(index)">
           <img
             :src="image.url"
@@ -67,10 +85,17 @@
   </div>
 
   <!-- Modal de confirmación para eliminar una actividad -->
+  <ConfirmDeleteModal
+    :isOpen="isDeleteModalOpen"
+    @confirm="confirmDeleteImage"
+    @cancel="cancelDeleteImage"
+  />
+
   <ActivityGalleryView
     :images="props.images"
     :activityId="props.activityId"
     :show="isGalleryModalOpen"
+    @update-images="loadImages"
     @close="closeGalleryModal"
   />
 </template>
@@ -84,7 +109,8 @@ import ActivityGalleryView from '@/views/Actividades/ActivityGalleryView.vue'
 import ActividadesService from '@/services/actividades/ActividadesService'
 import { useAuthStore } from '@/stores/auth/authStore'
 import Swal from 'sweetalert2'
-
+import ImagenService from '@/services/imagenes/ImagenService'
+import ConfirmDeleteModal from './ConfirmDeleteModal.vue'
 // Props
 interface Props {
   activityId: string
@@ -97,6 +123,8 @@ const authStore = useAuthStore()
 // Estado para el carrusel y modal
 const currentSlide = ref(0)
 const isGalleryModalOpen = ref(false) // Estado para abrir/cerrar el modal
+const isDeleteModalOpen = ref(false) // Estado para el modal de confirmación
+const imageIdToDelete = ref<string | null>(null) // ID de la imagen a eliminar
 
 // Función para abrir el modal de la galería
 const openGalleryModal = () => {
@@ -106,6 +134,27 @@ const openGalleryModal = () => {
 // Función para cerrar el modal
 const closeGalleryModal = () => {
   isGalleryModalOpen.value = false
+}
+
+// Función para abrir el modal de confirmación de eliminación
+const openDeleteModal = (imageId: string) => {
+  imageIdToDelete.value = imageId
+  isDeleteModalOpen.value = true
+}
+
+// Función para cancelar la eliminación
+const cancelDeleteImage = () => {
+  isDeleteModalOpen.value = false
+  imageIdToDelete.value = null
+}
+
+// Función para confirmar y eliminar la imagen
+const confirmDeleteImage = async () => {
+  if (imageIdToDelete.value) {
+    await deleteImage([imageIdToDelete.value])
+    isDeleteModalOpen.value = false
+    imageIdToDelete.value = null
+  }
 }
 
 // Función para borrar imágenes
@@ -119,15 +168,15 @@ const deleteImage = async (imageIds: string[]) => {
     )
     console.log('Imágenes eliminadas con éxito:', response)
 
-    // Eliminar las imágenes del array local de `images`
-    props.images = props.images.filter((image) => !imageIds.includes(image.id))
-
     Swal.fire({
       title: '¡Éxito!',
       text: 'Las imágenes han sido eliminadas correctamente.',
       icon: 'success',
       confirmButtonText: 'Aceptar'
     })
+
+    await loadImages() 
+    
   } catch (error) {
     console.error('Error al eliminar las imágenes:', error)
     Swal.fire({
@@ -142,10 +191,27 @@ const deleteImage = async (imageIds: string[]) => {
 const slideTo = (index: number) => {
   currentSlide.value = index
 }
+const images2 = ref<Image[]>([]) // Almacenará las imágenes asociadas a la actividad
+
+// Función para obtener las imágenes de la actividad
+const loadImages = async () => {
+  try {
+    const token = authStore.getToken
+    const response = await ImagenService.getImagesByActivity(token, props.activityId)
+    images2.value = response // Asignar las imágenes al estado local
+    console.log(response)
+  } catch (error) {
+    console.error('Error al cargar las imágenes:', error)
+  }
+}
 
 onMounted(() => {
-  // Cualquier lógica que necesites al montar el componente
+  loadImages() // Cargar imágenes al montar el componente
 })
+
+function emit(arg0: string) {
+  throw new Error('Function not implemented.')
+}
 </script>
 
 <style scoped>

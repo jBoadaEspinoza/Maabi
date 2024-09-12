@@ -1,5 +1,5 @@
 import axiosInstance from '../axiosInstance'
-
+import type { Image } from '@/types/Image'
 class ImagenService {
   /**
    * Inserta una imagen en la galería asociada a un establecimiento.
@@ -32,34 +32,37 @@ class ImagenService {
     }
   }
 
-/**
- * Elimina una lista de imágenes asociadas a una actividad turística.
- * @param token - Token de autorización Bearer.
- * @param activityId - ID de la actividad turística a la cual están asociadas las imágenes.
- * @param imageIds - Array con los IDs de las imágenes a eliminar (Requerido).
- * @returns - Promesa que se resuelve con la respuesta del servidor.
- */
-static async deleteImagesFromActivity(token: string, activityId: string, imageIds: string[]): Promise<any> {
-  try {
-    const response = await axiosInstance.post(
-      `/activities/${activityId}/deleteImages`, // URL con el ID de la actividad
-      { images: imageIds }, // Payload con el array de IDs de imágenes
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
+  /**
+   * Elimina una lista de imágenes asociadas a una actividad turística.
+   * @param token - Token de autorización Bearer.
+   * @param activityId - ID de la actividad turística a la cual están asociadas las imágenes.
+   * @param imageIds - Array con los IDs de las imágenes a eliminar (Requerido).
+   * @returns - Promesa que se resuelve con la respuesta del servidor.
+   */
+  static async deleteImagesFromActivity(
+    token: string,
+    activityId: string,
+    imageIds: string[]
+  ): Promise<any> {
+    try {
+      const response = await axiosInstance.post(
+        `/activities/${activityId}/deleteImages`, // URL con el ID de la actividad
+        { images: imageIds }, // Payload con el array de IDs de imágenes
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
-      }
-    )
+      )
 
-    // Retorna los datos de la respuesta del servidor
-    return response.data
-  } catch (error) {
-    console.error('Error deleting images from activity:', error)
-    throw error
+      // Retorna los datos de la respuesta del servidor
+      return response.data
+    } catch (error) {
+      console.error('Error deleting images from activity:', error)
+      throw error
+    }
   }
-}
-
 
   /**
    * Obtiene la lista de todas las imágenes disponibles.
@@ -82,6 +85,24 @@ static async deleteImagesFromActivity(token: string, activityId: string, imageId
       throw error
     }
   }
+
+  static async getImagesByActivity(token: string, activityId: string): Promise<Image[]> {
+    try {
+      const response = await axiosInstance.get(`/images/activity/${activityId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      //console.log(response)
+      // Asumimos que el servidor devuelve un array de imágenes que coinciden con la interfaz Image
+      return response.data.data as Image[]
+    } catch (error) {
+      console.error('Error getting images by activity:', error)
+      throw error
+    }
+  }
+  
 }
 
 export default ImagenService
