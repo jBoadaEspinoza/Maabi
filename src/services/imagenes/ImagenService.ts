@@ -102,7 +102,33 @@ class ImagenService {
       throw error
     }
   }
-  
+
+  /**
+   * Elimina una imagen de la galería según su ID.
+   * @param token - Token de autorización Bearer.
+   * @param imageId - ID de la imagen a eliminar (Requerido).
+   * @returns - Promesa que se resuelve con la respuesta del servidor.
+   */
+  static async eliminarImagenDeGaleria(token: string, imageId: string): Promise<any> {
+    try {
+      const response = await axiosInstance.post(
+        `/images/${imageId}/delete`, // Endpoint con el ID de la imagen
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+
+      // Retorna los datos de la respuesta del servidor
+      return response.data
+    } catch (error) {
+      console.error('Error eliminando la imagen de la galería:', error)
+      throw error
+    }
+  }
 }
 
 export default ImagenService

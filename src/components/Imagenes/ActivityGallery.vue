@@ -16,6 +16,7 @@
           type="checkbox"
           :value="image.id"
           v-model="selectedImages"
+          @change="toggleImageSelection(image.id)"
           class="absolute top-2 right-2 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded"
         />
       </div>
@@ -45,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import Swal from 'sweetalert2';
 import ImagenService from '@/services/imagenes/ImagenService';
 import { useAuthStore } from '@/stores/auth/authStore';
@@ -56,14 +57,15 @@ interface Props {
   activityId: string,
   images: Image[] // Las imágenes asociadas a la actividad
 }
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // Estado que contiene las imágenes (ID y URL)
 const imageData = ref<{ id: string, url: string }[]>([]);
 const selectedImages = ref<string[]>([]); // Estado para las imágenes seleccionadas
+const deselectedImages = ref<string[]>([]); // Estado para las imágenes no seleccionadas
 const selectAll = ref(false); // Estado para seleccionar/desmarcar todas las imágenes
 const authStore = useAuthStore();
-const emit = defineEmits(['update-images']); // Define el evento que será emitido
+const emit = defineEmits(['update-images', 'selected-images', 'deselected-images']); // Eventos emitidos
 
 const images2 = ref<Image[]>([]) // Almacenará las imágenes asociadas a la actividad
 
@@ -101,6 +103,15 @@ const loadImages = async () => {
   }
 };
 
+// Función para emitir las imágenes seleccionadas y no seleccionadas
+const emitImages = () => {
+  deselectedImages.value = imageData.value
+    .filter(image => !selectedImages.value.includes(image.id))
+    .map(image => image.id); // Filtrar las imágenes que no están seleccionadas
+  emit('selected-images', selectedImages.value); // Emitir las imágenes seleccionadas
+  emit('deselected-images', deselectedImages.value); // Emitir las imágenes no seleccionadas
+};
+
 // Función para agregar imágenes a una actividad
 const addImagesToActivity = async () => {
   if (selectedImages.value.length === 0) {
@@ -126,11 +137,9 @@ const addImagesToActivity = async () => {
       confirmButtonText: 'Aceptar',
     });
 
-    // Limpiar la selección de imágenes
-    //selectedImages.value = [];
     emit('update-images');
+    emitImages(); // Emitir las listas de imágenes después de agregar
 
-    //selectAll.value = false; // Resetear el estado de "Seleccionar todas"
   } catch (error) {
     console.error('Error al agregar imágenes a la actividad:', error);
 
@@ -143,6 +152,18 @@ const addImagesToActivity = async () => {
   }
 };
 
+// Función que maneja el cambio de selección de una imagen
+const toggleImageSelection = (imageId: string) => {
+  if (selectedImages.value.includes(imageId)) {
+    // Si ya está seleccionada, quítala de la selección
+    selectedImages.value = selectedImages.value.filter(id => id !== imageId);
+  } else {
+    // Si no está seleccionada, agrégala
+    selectedImages.value.push(imageId);
+  }
+  emitImages(); // Emitir las listas actualizadas cada vez que cambia la selección
+};
+
 // Función para alternar la selección de todas las imágenes
 const toggleAll = () => {
   if (selectAll.value) {
@@ -150,14 +171,17 @@ const toggleAll = () => {
   } else {
     selectedImages.value = [];
   }
+  emitImages(); // Emitir las listas actualizadas cuando se seleccionan todas las imágenes
 };
 
-
-// Cargar las imágenes al montar el componente, garantizando que loadActivityImages se ejecute antes de loadImages
+// Cargar las imágenes al montar el componente
 onMounted(async () => {
   await loadActivityImages(); // Esperar a que las imágenes de la actividad se carguen
   loadImages(); // Luego cargar las imágenes globales
 });
+
+// Escuchar los cambios en las imágenes seleccionadas para emitir las listas actualizadas
+watch(selectedImages, emitImages);
 </script>
 
 <style scoped>
