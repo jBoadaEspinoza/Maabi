@@ -15,8 +15,8 @@
         <input
           type="checkbox"
           :value="image.id"
-          v-model="selectedImages"
-          @change="toggleImageSelection(image.id)"
+          :checked="selectedImages.includes(image.id)"
+          @change="toggleImageSelection(image.id, $event.target.checked)"
           class="absolute top-2 right-2 w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded"
         />
       </div>
@@ -30,17 +30,13 @@
       <label class="flex items-center space-x-2">
         <input
           type="checkbox"
-          v-model="selectAll"
-          @change="toggleAll"
+          :checked="selectAll"
+          @change="toggleAll($event.target.checked)"
           class="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded"
         />
         <span>Seleccionar todas</span>
       </label>
 
-      <!-- Botón para confirmar la adición de imágenes seleccionadas -->
-      <button @click="addImagesToActivity" class="bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 mt-2">
-        Agregar imágenes a la actividad
-      </button>
     </div>
   </div>
 </template>
@@ -95,6 +91,9 @@ const loadImages = async () => {
     selectedImages.value = imageData.value
       .filter(image => selectedIds.includes(image.id)) // Filtrar las imágenes que coinciden con los IDs en props.images
       .map(image => image.id); // Extraer solo los IDs de las imágenes filtradas
+
+    // Actualizar el estado selectAll
+    selectAll.value = imageData.value.length > 0 && imageData.value.every(image => selectedImages.value.includes(image.id));
 
     console.log('Imágenes cargadas:', imageData);
     console.log('Imágenes seleccionadas automáticamente:', selectedImages);
@@ -153,24 +152,30 @@ const addImagesToActivity = async () => {
 };
 
 // Función que maneja el cambio de selección de una imagen
-const toggleImageSelection = (imageId: string) => {
-  if (selectedImages.value.includes(imageId)) {
-    // Si ya está seleccionada, quítala de la selección
-    selectedImages.value = selectedImages.value.filter(id => id !== imageId);
+const toggleImageSelection = (imageId: string, isChecked: boolean) => {
+  if (isChecked) {
+    // Si está marcada, agrégala a la selección
+    if (!selectedImages.value.includes(imageId)) {
+      selectedImages.value.push(imageId);
+    }
   } else {
-    // Si no está seleccionada, agrégala
-    selectedImages.value.push(imageId);
+    // Si no está marcada, quítala de la selección
+    selectedImages.value = selectedImages.value.filter(id => id !== imageId);
   }
+  // Actualizar el estado selectAll
+  selectAll.value = imageData.value.length > 0 && imageData.value.every(image => selectedImages.value.includes(image.id));
   emitImages(); // Emitir las listas actualizadas cada vez que cambia la selección
 };
 
 // Función para alternar la selección de todas las imágenes
-const toggleAll = () => {
-  if (selectAll.value) {
+const toggleAll = (isChecked: boolean) => {
+  if (isChecked) {
     selectedImages.value = imageData.value.map(image => image.id);
   } else {
     selectedImages.value = [];
   }
+  // Actualizar el estado selectAll
+  selectAll.value = isChecked;
   emitImages(); // Emitir las listas actualizadas cuando se seleccionan todas las imágenes
 };
 

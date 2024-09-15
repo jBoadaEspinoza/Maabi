@@ -64,27 +64,40 @@ class ImagenService {
     }
   }
 
-  /**
-   * Obtiene la lista de todas las imágenes disponibles.
-   * @param token - Token de autorización Bearer.
-   * @returns - Promesa que se resuelve con la respuesta del servidor, incluyendo la lista de imágenes.
-   */
-  static async getImages(token: string): Promise<any> {
-    try {
-      const response = await axiosInstance.get('/images', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+/**
+ * Obtiene la lista de todas las imágenes disponibles.
+ * @param token - Token de autorización Bearer.
+ * @param limit - Limita la cantidad de imágenes retornadas (opcional).
+ * @param skip - Número de imágenes a saltar (opcional).
+ * @param sort - Especifica el orden de los resultados (opcional).
+ * @returns - Promesa que se resuelve con la respuesta del servidor, incluyendo la lista de imágenes.
+ */
+static async getImages(
+  token: string,
+  limit?: number,
+  skip?: number,
+  sort?: 'ASC' | 'DESC'
+): Promise<any> {
+  try {
+    const response = await axiosInstance.get('/images', {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      params: {
+        limit: limit || 50, // Por defecto, limita a 10 si no se especifica
+        skip: skip || 0, // Por defecto, empieza desde 0 si no se especifica
+        sort: sort || 'ASC' // Por defecto, orden ascendente si no se especifica
+      }
+    })
 
-      // Retorna la respuesta completa o los datos según lo necesites
-      return response.data
-    } catch (error) {
-      console.error('Error getting images:', error)
-      throw error
-    }
+    // Retorna la respuesta completa o los datos según lo necesites
+    return response.data
+  } catch (error) {
+    console.error('Error getting images:', error)
+    throw error
   }
+}
 
   static async getImagesByActivity(token: string, activityId: string): Promise<Image[]> {
     try {
